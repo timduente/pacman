@@ -14,6 +14,8 @@ public class MyPacMan implements PacManController
 	@Override
 	public int getAction(Game game,long timeDue)
 	{
+		
+		System.out.println("Fuck your cat!");
 		return -1;
 	}
 }
