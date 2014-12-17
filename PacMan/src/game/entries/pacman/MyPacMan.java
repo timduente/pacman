@@ -16,6 +16,7 @@ public class MyPacMan implements PacManController
 	{
 		
 		System.out.println("Fuck your cat!");
+		
 		return -1;
 	}
 }
