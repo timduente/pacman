@@ -14,9 +14,11 @@ public class MyGhosts extends AbstractGhost implements GhostController
 	//Place your game logic here to play the game as the ghosts
 	@Override
 	public int[] getActions(Game game,long timeDue)
-	{
+	{		
 		return null;
 	}
+	
+	
 	
 	@Override
 	public String getGhostGroupName() {
