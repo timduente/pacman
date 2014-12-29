@@ -1,6 +1,8 @@
 package game.entries.pacman.group4;
 
-public interface IStarCSObject {
+import java.io.Serializable;
+
+public interface IStarCSObject extends Serializable {
 	/**
 	 * Vergleicht die gegebene Beobachtung mit der Condition dieses Elements.
 	 * Passt die Beobachtung zur Condition, dann wird das Object zurückgegeben,

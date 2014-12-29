@@ -1,5 +1,6 @@
 package game.entries.pacman.group4;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public interface IMemory {
@@ -10,7 +11,7 @@ public interface IMemory {
 	 * @param fileName
 	 *            Dateiname unter dem die Classifier gespeichert werden.
 	 */
-	public void writeMemoryToFile(String fileName);
+	public void writeMemoryToFile(String fileName) throws IOException;
 
 	/**
 	 * Liest alle Classifier aus einer Datei ein.
@@ -18,7 +19,7 @@ public interface IMemory {
 	 * @param fileName
 	 *            Dateiname unter dem die Classifier gespeichert werden.
 	 */
-	public void readMemoryFromFile(String fileName);
+	public void readMemoryFromFile(String fileName) throws IOException;
 
 	/**
 	 * Gibt alle Matchings zu einer bestimmten Beobachtung zurück.
@@ -28,6 +29,14 @@ public interface IMemory {
 	 * @return Alle Classifier, die auf die Beobachtung passen.
 	 */
 	public ArrayList<IStarCSObject> getMatchings(String observation);
+
+	/**
+	 * Fügt einen Classifier zu der Memory Liste hinzu.
+	 * 
+	 * @param classifier
+	 *            Classifier, der hinzugefügt wird.
+	 */
+	public void addClassifier(IStarCSObject classifier);
 
 	/*
 	 * Weitere Operationen update aller Fitnesswerte. etc...

@@ -1,8 +1,7 @@
 package game.entries.pacman.group4;
 
-import java.io.Serializable;
 
-public class XCSObject implements Serializable, IStarCSObject{
+public class XCSObject implements IStarCSObject{
 	String condition;
 	String action;
 

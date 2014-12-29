@@ -1,7 +1,12 @@
 package game.entries.pacman;
 
+import java.io.IOException;
+
 import game.controllers.PacManController;
 import game.core.Game;
+import game.entries.pacman.group4.ActionConditionMemory;
+import game.entries.pacman.group4.IMemory;
+import game.entries.pacman.group4.XCSObject;
 import gui.AbstractPlayer;
 
 /*
@@ -11,6 +16,28 @@ import gui.AbstractPlayer;
  */
 public class MyPacMan extends AbstractPlayer implements PacManController {
 	// Place your game logic here to play the game as Ms Pac-Man
+	
+	public MyPacMan (){
+		super();
+		IMemory memory = new ActionConditionMemory();
+		memory.addClassifier(new XCSObject("1", "0", 0.0, 0.0, 20));
+		
+		try {
+			memory.writeMemoryToFile("test.txt");
+			memory.readMemoryFromFile("test.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		if(memory.getMatchings("1") != null){
+			System.out.println("läuft");
+		}else{
+			System.out.println("läuft nicht");
+		}
+	}
+	
 	@Override
 	public int getAction(Game game, long timeDue) {
 
