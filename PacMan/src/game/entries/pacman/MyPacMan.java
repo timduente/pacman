@@ -17,9 +17,13 @@ import gui.AbstractPlayer;
 public class MyPacMan extends AbstractPlayer implements PacManController {
 	// Place your game logic here to play the game as Ms Pac-Man
 	
+	IMemory memory;
+	
 	public MyPacMan (){
 		super();
-		IMemory memory = new ActionConditionMemory();
+		memory = new ActionConditionMemory();
+		
+		//Initialisierung der Classifier
 		memory.addClassifier(new XCSObject("1", "0", 0.0, 0.0, 20));
 		
 		try {
@@ -40,14 +44,18 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 	
 	@Override
 	public int getAction(Game game, long timeDue) {
+		
+		
+		
+		return -1;
 
-		int nextDirection = nextPill(game.getCurPacManLoc(), game);
+		/*int nextDirection = nextPill(game.getCurPacManLoc(), game);
 		if (nextDirection != -1) {
-			System.out.println("Next Direction : " + nextDirection);
 			return nextDirection;
 		}
 
 		return -1;
+		*/
 	}
 
 	int nextPill(int currentPosition, Game game) {
