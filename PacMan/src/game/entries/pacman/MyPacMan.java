@@ -1,13 +1,21 @@
 package game.entries.pacman;
 
-import java.io.IOException;
-
 import game.controllers.PacManController;
 import game.core.Game;
+import game.entries.pacman.group4.ActionChooser;
 import game.entries.pacman.group4.ActionConditionMemory;
+import game.entries.pacman.group4.EnvironmentObserver;
+import game.entries.pacman.group4.IActionChooser;
+import game.entries.pacman.group4.IEnvironmentObserver;
 import game.entries.pacman.group4.IMemory;
+import game.entries.pacman.group4.IRewarder;
+import game.entries.pacman.group4.IStarCSObject;
+import game.entries.pacman.group4.Rewarder;
 import game.entries.pacman.group4.XCSObject;
 import gui.AbstractPlayer;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /*
  * This is the class you need to modify for your entry. In particular, you need to
@@ -16,16 +24,31 @@ import gui.AbstractPlayer;
  */
 public class MyPacMan extends AbstractPlayer implements PacManController {
 	// Place your game logic here to play the game as Ms Pac-Man
-	
+
 	IMemory memory;
-	
-	public MyPacMan (){
+	IEnvironmentObserver observer;
+	IActionChooser actionChooser;
+	IRewarder rewarder;
+
+	public MyPacMan() {
 		super();
 		memory = new ActionConditionMemory();
+		observer = new EnvironmentObserver();
+		actionChooser = new ActionChooser();
+		rewarder = new Rewarder();
+
+		// Initialisierung der Classifier
+		// try {
+		// memory.readMemoryFromFile("test.txt");
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		
-		//Initialisierung der Classifier
+		
+		//Test:
 		memory.addClassifier(new XCSObject("1", "0", 0.0, 0.0, 20));
-		
+
 		try {
 			memory.writeMemoryToFile("test.txt");
 			memory.readMemoryFromFile("test.txt");
@@ -33,29 +56,77 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		if(memory.getMatchings("1") != null){
-			System.out.println("läuft");
-		}else{
-			System.out.println("läuft nicht");
+
+		if (memory.getMatchings("1") != null) {
+			System.out.println("Test: Speichern und Einlesen läuft");
+		} else {
+			System.out.println("Test: Speichern und Einlesen läuft nicht");
 		}
 	}
-	
+
 	@Override
 	public int getAction(Game game, long timeDue) {
-		
-		
-		
-		return -1;
+		int nextDirection = -1;
 
-		/*int nextDirection = nextPill(game.getCurPacManLoc(), game);
-		if (nextDirection != -1) {
-			return nextDirection;
+		// Ablauf
+
+		// Beobachtung machen
+		String observation = observer.getObservationFromCurrentGameState(game);
+
+		// Reward aus letzter Aktion berechnen
+		int reward = observer.getReward(game, timeDue);
+		rewarder.giveRewardToActions(reward);
+
+		if (false && reward > 0) { // <- Weiß noch nicht wie Reward verrechnet
+									// wird. Theoretisch könnte man auf alle
+									// Aktionen den Reward andwenden. Oder er
+									// vergisst einfach irgendwann seine
+									// Aktionen.
+			rewarder.removeAllActionsFromBucket();
 		}
 
-		return -1;
-		*/
+		// Beobachtung weiterverarbeiten
+		ArrayList<IStarCSObject> matchings = memory.getMatchings(observation);
+
+		ArrayList<IStarCSObject> actionSet = new ArrayList<IStarCSObject>();
+		ArrayList<IStarCSObject> matchingSetMinusActionSet = new ArrayList<IStarCSObject>();
+
+		// Berechnung des ActionSets
+		actionChooser.getActionSetFor(matchings, actionSet,
+				matchingSetMinusActionSet);
+
+		// Belastung aller Classifier, die nicht im ActionSet enthalten sind.
+		double taxes = 1.0;
+		rewarder.payTaxesToRemainingClassifier(taxes, matchingSetMinusActionSet);
+
+		// Wenn Aktionen im ActionSet sind, dann wird die Aktion ausgeführt.
+		if (!actionSet.isEmpty()) {
+			nextDirection = actionChooser
+					.convertActionStringToDirectionInt(actionSet.get(0)
+							.getAction());
+
+		} else {
+			// TODO: Genetische Algorithmen um für neue Situation eine
+			// entsprechende Handlungsweise ableiten zu können.
+			// Action wird zum Action Set und zum Matching Set hinzugefügt.
+			nextDirection = -1;
+		}
+
+		// Alle Aktionen im ActionSet werden zum Bucket hinzugefügt.
+		for (int i = 0; i < actionSet.size(); i++) {
+			rewarder.addActionToBucket(actionSet.get(i));
+		}
+
+		// Richtung wird zurückgegeben.
+		return nextDirection;
+
+		/*
+		 * //Alter Code findet die nächste Pille. int nextDirection =
+		 * nextPill(game.getCurPacManLoc(), game); if (nextDirection != -1) {
+		 * return nextDirection; }
+		 * 
+		 * return -1;
+		 */
 	}
 
 	int nextPill(int currentPosition, Game game) {

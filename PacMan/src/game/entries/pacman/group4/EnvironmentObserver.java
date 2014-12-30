@@ -19,6 +19,12 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		return null;
 		
 	}
+
+	@Override
+	public int getReward(Game game, long time) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	/*
 	 * Methoden die die entsprechenden Funktionalitäten bereitstellen.

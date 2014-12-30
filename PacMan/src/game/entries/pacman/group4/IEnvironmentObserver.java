@@ -15,4 +15,15 @@ public interface IEnvironmentObserver {
 	 */
 	public String getObservationFromCurrentGameState(Game game);
 
+	/**
+	 * Gibt Reward zurück. Dieser Reward berechnet sich aus den Veränderungen
+	 * zum letzten Mal. Eventuell eine Pille eingesammelt macht 1 Reward.
+	 * Powerpille eingesammelt 5 Reward. Geist mit Powerpille gefressen 3 Reward.
+	 * 
+	 * @param game GameObject, über das Informationen abgefragte werden.
+	 * @param time vergangene Zeit
+	 * @return Integer gibt den Reward an.
+	 */
+	public int getReward(Game game, long time);
+
 }

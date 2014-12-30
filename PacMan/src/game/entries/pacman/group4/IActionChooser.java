@@ -21,4 +21,26 @@ public interface IActionChooser {
 			ArrayList<IStarCSObject> actionSet,
 			ArrayList<IStarCSObject> matchingSetMinusActionSet);
 
+	/**
+	 * Konvertiert die binärcodiert Aktion in eine Richtungsangabe, in die der
+	 * Pacman gehen soll. (eventuell auch NOP möglich??? <- eher ineffektiv,
+	 * aber könnte man ausprobieren)
+	 * 
+	 * @param action
+	 *            binärcodierte Aktion
+	 * @return Richtung, in die gegangen werden soll:
+	 * 
+	 *         <ul>
+	 *         <li>
+	 *         0: oben</li>
+	 *         <li>
+	 *         1: rechts</li>
+	 *         <li>
+	 *         2: unten</li>
+	 *         <li>
+	 *         3: links</li>
+	 *         </ul>
+	 */
+	public int convertActionStringToDirectionInt(String action);
+
 }

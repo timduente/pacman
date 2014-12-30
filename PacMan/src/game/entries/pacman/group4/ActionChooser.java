@@ -17,4 +17,10 @@ public class ActionChooser implements IActionChooser{
 		
 	}
 
+	@Override
+	public int convertActionStringToDirectionInt(String action) {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
 }

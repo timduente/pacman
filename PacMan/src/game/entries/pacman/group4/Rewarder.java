@@ -29,4 +29,11 @@ public class Rewarder implements IRewarder {
 
 	}
 
+	@Override
+	public void payTaxesToRemainingClassifier(double taxes,
+			ArrayList<IStarCSObject> matchingSetMinusActionSet) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

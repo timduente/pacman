@@ -1,5 +1,7 @@
 package game.entries.pacman.group4;
 
+import java.util.ArrayList;
+
 public interface IRewarder {
 
 	/**
@@ -23,5 +25,16 @@ public interface IRewarder {
 	 *            entsprechender Reward für ein erreichtes Ziel.
 	 */
 	public void giveRewardToActions(int reward);
+
+	/**
+	 * Alle Classifier, die nicht im ActionSet sind müssen Taxes bezahlen.
+	 * 
+	 * @param taxes
+	 *            evtl. intern hard coden.
+	 * @param matchingSetMinusActionSet
+	 *            Classifier, die abgewertet werden.
+	 */
+	public void payTaxesToRemainingClassifier(double taxes,
+			ArrayList<IStarCSObject> matchingSetMinusActionSet);
 
 }
