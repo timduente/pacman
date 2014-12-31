@@ -44,9 +44,8 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
-		
-		
-		//Test:
+
+		// Test:
 		memory.addClassifier(new XCSObject("1", "0", 0.0, 0.0, 20));
 
 		try {
@@ -117,16 +116,13 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			rewarder.addActionToBucket(actionSet.get(i));
 		}
 
-		// Richtung wird zurückgegeben.
-		return nextDirection;
-
 		/*
 		 * //Alter Code findet die nächste Pille. int nextDirection =
-		 * nextPill(game.getCurPacManLoc(), game); if (nextDirection != -1) {
-		 * return nextDirection; }
-		 * 
-		 * return -1;
+		 * nextPill(game.getCurPacManLoc(), game);
 		 */
+
+		// Richtung wird zurückgegeben.
+		return nextDirection;
 	}
 
 	int nextPill(int currentPosition, Game game) {
