@@ -11,15 +11,15 @@ import classifier.IAction;
 // 3: links
 public class GhostAction implements IAction {
 
-	int[] dirs = null;
+	int dir = -1;
 
-	public GhostAction(int[] ghostDirections) {
-		dirs = ghostDirections;
+	public GhostAction(int ghostDirection) {
+		dir = ghostDirection;
 	}
 
 	@Override
-	public int[] getActionBits() {
-		return dirs;
+	public int getActionBits() {
+		return dir;
 	}
 
 }

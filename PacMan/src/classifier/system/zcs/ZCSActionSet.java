@@ -24,4 +24,25 @@ public class ZCSActionSet {
 		
 		return null;
 	}
+	
+	public void reward(int deltaReward) {
+		for(ZCSEntry e : actions) {
+			e.setFitness(e.getFitness() + deltaReward);
+		}
+	}
+	
+	public IAction getHighestFitnessAction() {
+		
+		int curmaxFitness = Integer.MIN_VALUE;
+		IAction erg = null;
+		
+		for(ZCSEntry e : actions) {
+			if(e.getFitness() >= curmaxFitness) {
+				erg = e.getAction();
+				curmaxFitness = e.getFitness();
+			}
+		}
+		
+		return erg;
+	}
 }

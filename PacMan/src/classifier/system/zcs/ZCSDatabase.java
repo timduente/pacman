@@ -19,9 +19,8 @@ public class ZCSDatabase {
 		data.remove(entry);
 	}
 	
-	public ZCSMatchSet getMatches(long observationBits) {
+	public ZCSMatchSet getMatches(int observationBits) {
 		ZCSMatchSet erg = new ZCSMatchSet();
-		erg.startSelection();
 		
 		for(ZCSEntry e : data) {
 			if(e.observation.matches(observationBits)) {

@@ -2,8 +2,11 @@ package classifier;
 
 public interface IClassifierSystem {
 
-	void rewardAction(int reward, IAction a);
-	IAction getAction(long observationBits); // true/false fuer einige conditions
 	
+	// observation: true/false fuer einige conditions
+	// previous reward: relative reward summand for previous actionset
+	IAction getAction(int observationBits, int previousReward);
+	
+	// add some entries to database
 	void addData(IZCSClassifierDataSource dataSource);
 }

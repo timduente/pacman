@@ -3,5 +3,6 @@ package classifier;
 import game.core.Game;
 
 public interface IObserverSource {
-	long getObservation(Game g);
+	int getObservation(Game g);
+	int getReward(Game g);
 }

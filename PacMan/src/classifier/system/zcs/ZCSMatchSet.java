@@ -7,11 +7,6 @@ public class ZCSMatchSet {
 
 	List<ZCSEntry> matches = new LinkedList<ZCSEntry>();
 	
-	
-	public void startSelection() {
-		matches.clear();
-	}
-	
 	public void add(ZCSEntry entry) {
 		matches.add(entry);
 	}
