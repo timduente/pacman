@@ -151,7 +151,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		if (nextNode != -1) {
 			path = game.getPath(currentPosition, nextNode);
 			if (path.length >= 2) {
-				System.out.println("nächste Node: " + path[1]);
+				//System.out.println("nächste Node: " + path[1]);
 				int[] pacmanNeighbors = game.getPacManNeighbours();
 				for (int i = 0; i < pacmanNeighbors.length; i++) {
 					if (pacmanNeighbors[i] == path[1]) {
