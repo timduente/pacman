@@ -46,10 +46,10 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// }
 
 		// Test:
-		memory.addClassifier(new XCSObject("1", "0", 0.0, 0.0, 20));
+		memory.addClassifier(new XCSObject("101000010000000100001000010000", "0", 0.0, 0.0, 20));
 
 		try {
-			memory.writeMemoryToFile("test.txt");
+			
 			memory.readMemoryFromFile("test.txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -76,13 +76,16 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 
 		// Reward aus letzter Aktion berechnen
 		int reward = observer.getReward(game, timeDue);
+		System.out.println("Reward: "+ reward);
 		rewarder.giveRewardToActions(reward);
 
-		if (false && reward > 0) { // <- Weiß noch nicht wie Reward verrechnet
+		if (reward > 0) { // <- Weiß noch nicht wie Reward verrechnet
 									// wird. Theoretisch könnte man auf alle
 									// Aktionen den Reward andwenden. Oder er
 									// vergisst einfach irgendwann seine
 									// Aktionen.
+			
+			
 			rewarder.removeAllActionsFromBucket();
 		}
 
@@ -97,8 +100,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 				matchingSetMinusActionSet);
 
 		// Belastung aller Classifier, die nicht im ActionSet enthalten sind.
-		double taxes = 1.0;
-		rewarder.payTaxesToRemainingClassifier(taxes, matchingSetMinusActionSet);
+		rewarder.payTaxesToRemainingClassifier(matchingSetMinusActionSet);
 
 		// Wenn Aktionen im ActionSet sind, dann wird die Aktion ausgeführt.
 		if (!actionSet.isEmpty()) {
@@ -110,7 +112,8 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			// TODO: Genetische Algorithmen um für neue Situation eine
 			// entsprechende Handlungsweise ableiten zu können.
 			// Action wird zum Action Set und zum Matching Set hinzugefügt.
-			nextDirection = -1;
+			nextDirection = nextPill(game.getCurPacManLoc(), game);
+//			nextDirection = -1;
 		}
 
 		// Alle Aktionen im ActionSet werden zum Bucket hinzugefügt.
@@ -120,9 +123,16 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 
 		
 		//Alter Code findet die nächste Pille. 
-		nextDirection = nextPill(game.getCurPacManLoc(), game);
+		//nextDirection = nextPill(game.getCurPacManLoc(), game);
 		 
-
+		//Sicherung der Classifier
+		try {
+			memory.writeMemoryToFile("test.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// Richtung wird zurückgegeben.
 		return nextDirection;
 	}

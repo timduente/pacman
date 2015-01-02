@@ -12,6 +12,7 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		 * (x) - Richtung in der die nächste Power Pille liegt. 2bit
 		 * (/) - Abstand zum nächsten Geist?
 		 * (/) - Abstände zu allen Geistern?
+		 * - Abstände zu allen Geistern in Form mehrerer Abstufungen.
 		 * - Vllt eher Richtungen in denen Geister sind. 4bit (oben rechts unten links) 
 		 * (x) - Richtungen zu allen Geistern?
 		 * (indirekt, Geist ist essbar oder nicht ) - Pacman hat ne Pille gefressen? Power Pille?
@@ -86,7 +87,7 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		return expression ? '1' : '0';
 	}
 	
-	private static final String[] binaryDirections = { "100", "000", "001", "010", "011"}; 
+	public static final String[] binaryDirections = { "100", "000", "001", "010", "011"}; 
 	
 	private String directionToBinary(int direction){
 		return binaryDirections[direction + 1];
@@ -108,6 +109,7 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 	
 	int lastPillCount;
 	int lastPowerPillCount;
+	int lastScore;
 	
 	
 	@Override
@@ -116,6 +118,7 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		
 		int actualActivePillCount = game.getPillIndicesActive().length;
 		int actualActivePowerPillCount = game.getPowerPillIndicesActive().length;
+		int actualScore = game.getScore();
 		
 		if(actualActivePillCount < lastPillCount){
 			reward = reward + 5;
@@ -123,10 +126,14 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		
 		if(actualActivePowerPillCount < lastPowerPillCount){
 			reward = reward + 3;
-		}		
+		}
+		
+		//reward = lastScore - actualScore;
+		//möglichst hoher score
 		
 		lastPillCount = actualActivePillCount;
-		lastPowerPillCount = actualActivePowerPillCount;		
+		lastPowerPillCount = actualActivePowerPillCount;
+		lastScore = actualScore;
 			
 		return reward;
 	}

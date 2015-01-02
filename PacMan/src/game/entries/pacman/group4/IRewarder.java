@@ -29,12 +29,10 @@ public interface IRewarder {
 	/**
 	 * Alle Classifier, die nicht im ActionSet sind müssen Taxes bezahlen.
 	 * 
-	 * @param taxes
-	 *            evtl. intern hard coden.
 	 * @param matchingSetMinusActionSet
 	 *            Classifier, die abgewertet werden.
 	 */
-	public void payTaxesToRemainingClassifier(double taxes,
+	public void payTaxesToRemainingClassifier(
 			ArrayList<IStarCSObject> matchingSetMinusActionSet);
 
 }
