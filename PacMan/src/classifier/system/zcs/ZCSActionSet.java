@@ -1,0 +1,48 @@
+package classifier.system.zcs;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import classifier.IAction;
+
+public class ZCSActionSet {
+	List<ZCSEntry> actions = new LinkedList<ZCSEntry>();
+	
+	
+	public void add(ZCSEntry e) {
+		actions.add(e);
+	}
+	
+	public List<ZCSEntry> getActions() {
+		return actions;
+	}
+	
+	public IAction testGetFirstAction() {
+		
+		if(actions.size() > 0)
+			return actions.get(0).action;
+		
+		return null;
+	}
+	
+	public void reward(int deltaReward) {
+		for(ZCSEntry e : actions) {
+			e.setFitness(e.getFitness() + deltaReward);
+		}
+	}
+	
+	public IAction getHighestFitnessAction() {
+		
+		int curmaxFitness = Integer.MIN_VALUE;
+		IAction erg = null;
+		
+		for(ZCSEntry e : actions) {
+			if(e.getFitness() >= curmaxFitness) {
+				erg = e.getAction();
+				curmaxFitness = e.getFitness();
+			}
+		}
+		
+		return erg;
+	}
+}
