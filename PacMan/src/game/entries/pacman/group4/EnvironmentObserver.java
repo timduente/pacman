@@ -121,14 +121,14 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		int actualScore = game.getScore();
 		
 		if(actualActivePillCount < lastPillCount){
-			reward = reward + 5;
+			reward = reward + 10;
 		}
 		
 		if(actualActivePowerPillCount < lastPowerPillCount){
-			reward = reward + 3;
+			reward = reward + 10;
 		}
 		
-		//reward = lastScore - actualScore;
+		reward = reward + lastScore - actualScore;
 		//möglichst hoher score
 		
 		lastPillCount = actualActivePillCount;

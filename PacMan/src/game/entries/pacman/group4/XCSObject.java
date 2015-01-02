@@ -48,20 +48,29 @@ public class XCSObject implements IStarCSObject {
 		predictionError = lastPredictionError + learningRate
 				* (Math.abs(reward - lastPrediction) - lastPredictionError);
 		fitness = lastFitness + learningRate
-				* (1 / lastPredictionError - lastFitness);
+				* (1 / (0.01+lastPredictionError) - lastFitness);
 
 	}
 
 	@Override
 	public void payTax(double tax) {
-		fitness = fitness - tax;
+		if (fitness > tax)
+			fitness = fitness - tax;
 	}
 
 	@Override
 	public double getPrediction() {
 		return prediction;
 	}
-	
-	
 
+	@Override
+	public double getFitness() {
+		return fitness;
+	}
+
+	@Override
+	public String toString() {
+		return condition + "@" + action + "@" + prediction + "@"
+				+ predictionError + "@" + fitness;
+	}
 }

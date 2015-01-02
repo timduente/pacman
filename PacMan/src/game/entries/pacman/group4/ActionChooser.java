@@ -22,6 +22,10 @@ public class ActionChooser implements IActionChooser {
 			}
 		}
 		
+		if(maxPrediction < 0.5){
+			indexToAdd = -1;
+		}
+		
 		for(int i = 0; i< matchingSet.size(); i++){
 			if( i == indexToAdd){
 				actionSet.add(matchingSet.get(i));

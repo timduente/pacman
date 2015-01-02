@@ -46,7 +46,10 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// }
 
 		// Test:
-		memory.addClassifier(new XCSObject("101000010000000100001000010000", "0", 0.0, 0.0, 20));
+		memory.addClassifier(new XCSObject("101000010000000100001000010000", "000", 0.2, 0.2, 20));
+		memory.addClassifier(new XCSObject("111000110000000100001000010000", "001", 0.2, 0.2, 20));
+		memory.addClassifier(new XCSObject("001101110000000100001000010000", "010", 0.2, 0.2, 20));
+		memory.addClassifier(new XCSObject("000101110000000100001000010000", "011", 0.2, 0.2, 20));
 
 		try {
 			
@@ -56,11 +59,11 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			e.printStackTrace();
 		}
 
-		if (memory.getMatchings("1") != null) {
-			System.out.println("Test: Speichern und Einlesen läuft");
-		} else {
-			System.out.println("Test: Speichern und Einlesen läuft nicht");
-		}
+//		if (memory.getMatchings("1") != null) {
+//			System.out.println("Test: Speichern und Einlesen läuft");
+//		} else {
+//			System.out.println("Test: Speichern und Einlesen läuft nicht");
+//		}
 	}
 
 	@Override
@@ -72,11 +75,12 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// Beobachtung machen
 		String observation = observer.getObservationFromCurrentGameState(game);
 		
-		System.out.println("Beobachtung: "+ observation);
+//		System.out.println("Beobachtung: "+ observation);
 
 		// Reward aus letzter Aktion berechnen
 		int reward = observer.getReward(game, timeDue);
-		System.out.println("Reward: "+ reward);
+//		System.out.println("Reward: "+ reward);
+		//if(reward > 0)
 		rewarder.giveRewardToActions(reward);
 
 		if (reward > 0) { // <- Weiß noch nicht wie Reward verrechnet
@@ -86,7 +90,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 									// Aktionen.
 			
 			
-			rewarder.removeAllActionsFromBucket();
+			//rewarder.removeAllActionsFromBucket();
 		}
 
 		// Beobachtung weiterverarbeiten
@@ -107,17 +111,23 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			nextDirection = actionChooser
 					.convertActionStringToDirectionInt(actionSet.get(0)
 							.getAction());
+			
 
 		} else {
 			// TODO: Genetische Algorithmen um für neue Situation eine
 			// entsprechende Handlungsweise ableiten zu können.
 			// Action wird zum Action Set und zum Matching Set hinzugefügt.
-			nextDirection = nextPill(game.getCurPacManLoc(), game);
-//			nextDirection = -1;
+			//nextDirection = nextPill(game.getCurPacManLoc(), game);
+			
+			IStarCSObject generatedClassifier = memory.generateNewClassifierForObservation(observation);
+			nextDirection = actionChooser.convertActionStringToDirectionInt(generatedClassifier.getAction());
+			actionSet.add(generatedClassifier);
 		}
 
+		System.out.println(actionSet.get(0));
 		// Alle Aktionen im ActionSet werden zum Bucket hinzugefügt.
 		for (int i = 0; i < actionSet.size(); i++) {
+			
 			rewarder.addActionToBucket(actionSet.get(i));
 		}
 

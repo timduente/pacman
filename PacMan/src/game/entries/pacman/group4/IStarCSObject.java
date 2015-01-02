@@ -42,5 +42,7 @@ public interface IStarCSObject extends Serializable {
 	public void payTax(double tax);
 	
 	public double getPrediction();
+	
+	public double getFitness();
 
 }
