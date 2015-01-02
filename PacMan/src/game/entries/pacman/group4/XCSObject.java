@@ -20,6 +20,10 @@ public class XCSObject implements IStarCSObject{
 
 	@Override
 	public IStarCSObject compareToGivenObservation(String observation) {
+		if(observation.length() != condition.length()){
+			return null;
+		}
+		
 		for (int i = 0; i < observation.length(); i++) {
 			if (this.condition.charAt(i) == '0' && observation.charAt(i) == '1'
 					|| this.condition.charAt(i) == '1'

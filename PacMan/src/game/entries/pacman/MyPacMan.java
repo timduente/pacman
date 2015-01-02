@@ -71,6 +71,8 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 
 		// Beobachtung machen
 		String observation = observer.getObservationFromCurrentGameState(game);
+		
+		System.out.println("Beobachtung: "+ observation);
 
 		// Reward aus letzter Aktion berechnen
 		int reward = observer.getReward(game, timeDue);
@@ -116,10 +118,10 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			rewarder.addActionToBucket(actionSet.get(i));
 		}
 
-		/*
-		 * //Alter Code findet die nächste Pille. int nextDirection =
-		 * nextPill(game.getCurPacManLoc(), game);
-		 */
+		
+		//Alter Code findet die nächste Pille. 
+		nextDirection = nextPill(game.getCurPacManLoc(), game);
+		 
 
 		// Richtung wird zurückgegeben.
 		return nextDirection;

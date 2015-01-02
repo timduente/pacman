@@ -48,9 +48,26 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		//Vllt besser Richtung in der ein Edible Ghost ist.
 		
 		for(int i = 0; i< G.NUM_GHOSTS; i++){
-			int[] path = game.getPath(game.getCurPacManLoc(), game.getCurGhostLoc(i));
+			System.out.println("ghost " +  i +" at: " + game.getCurGhostLoc(i));
+//			if(game.getCurGhostLoc(i))
+
+			
+			//int[] path = game.getPath(game.getCurGhostLoc(i), game.getCurPacManLoc());
+			//obiger Aufruf endet in Endlosschleife.
+			
+			int[] path = game.getGhostPath(i, game.getCurPacManLoc());
+			
 			if( path.length > 1){
-				observation.append(directionToBinary(getDirectionToNeighboringNode(game, path[1])));
+				
+				for(int j = 0; j< path.length; j++){
+					System.out.println("Path @ " + j + " : " + path[j] );
+					
+				}
+				
+				for(int j = 0; j< neighbours.length; j++){
+					System.out.println("Nachbar " + j + " : " + neighbours[j]);
+				}
+				observation.append(directionToBinary(getDirectionToNeighboringNode(game, path[path.length - 1])));
 				observation.append(appendBinary(path.length < 3));
 				observation.append(appendBinary(game.isEdible(i))); // <- evtl. Berechnen ob der Pacman den Geist noch kriegen kann.
 			}else{
