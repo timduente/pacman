@@ -16,6 +16,26 @@ public class XCSObject implements IStarCSObject {
 		this.predictionError = predictionError;
 		this.fitness = fitness;
 	}
+	
+	
+	
+	@Override
+	public boolean equals(Object obj){
+		if(obj == null || this == null){
+			return false;
+		}
+		if(!(obj instanceof XCSObject)){
+			return false;
+		}
+		XCSObject xCSObject = (XCSObject)obj;
+		if(!xCSObject.action.equals(this.action)){
+			return false;
+		}
+		if(!xCSObject.condition.equals(this.condition)){
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public IStarCSObject compareToGivenObservation(String observation) {
@@ -39,7 +59,7 @@ public class XCSObject implements IStarCSObject {
 	}
 
 	@Override
-	public void update(int reward, double learningRate) {
+	public void update(double reward, double learningRate) {
 		double lastPrediction = prediction;
 		double lastPredictionError = predictionError;
 		double lastFitness = fitness;

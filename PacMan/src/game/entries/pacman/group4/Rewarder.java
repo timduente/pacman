@@ -13,7 +13,7 @@ public class Rewarder implements IRewarder {
 	ArrayList<IStarCSObject> lastActionBucket = new ArrayList<IStarCSObject>();
 
 	private final static double TAX = 0.1;
-	private final static double lEARNING_RATE = 0.7;
+	private final static double lEARNING_RATE = 0.5;
 
 	@Override
 	public void addActionToBucket(IStarCSObject classifier) {
@@ -28,7 +28,7 @@ public class Rewarder implements IRewarder {
 	}
 
 	@Override
-	public void giveRewardToActions(int reward) {
+	public void giveRewardToActions(double reward) {
 		for (int i = 0; i < lastActionBucket.size(); i++) {
 			lastActionBucket.get(i).update(reward, lEARNING_RATE);
 		}

@@ -46,10 +46,10 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// }
 
 		// Test:
-		memory.addClassifier(new XCSObject("101000010000000100001000010000", "000", 0.2, 0.2, 20));
-		memory.addClassifier(new XCSObject("111000110000000100001000010000", "001", 0.2, 0.2, 20));
-		memory.addClassifier(new XCSObject("001101110000000100001000010000", "010", 0.2, 0.2, 20));
-		memory.addClassifier(new XCSObject("000101110000000100001000010000", "011", 0.2, 0.2, 20));
+		memory.addClassifier(new XCSObject("1######00010000000100001000010000", "00", 10, 0.2, 20));
+		memory.addClassifier(new XCSObject("#1#####00110000000100001000010000", "01", 10, 0.2, 20));
+		memory.addClassifier(new XCSObject("##1####01010000000100001000010000", "10", 10, 0.2, 20));
+		memory.addClassifier(new XCSObject("###1###01110000000100001000010000", "11", 10, 0.2, 20));
 
 		try {
 			
@@ -81,7 +81,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		int reward = observer.getReward(game, timeDue);
 //		System.out.println("Reward: "+ reward);
 		//if(reward > 0)
-		rewarder.giveRewardToActions(reward);
+		
 
 		if (reward > 0) { // <- Weiß noch nicht wie Reward verrechnet
 									// wird. Theoretisch könnte man auf alle
@@ -102,9 +102,10 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// Berechnung des ActionSets
 		actionChooser.getActionSetFor(matchings, actionSet,
 				matchingSetMinusActionSet);
+		
 
 		// Belastung aller Classifier, die nicht im ActionSet enthalten sind.
-		rewarder.payTaxesToRemainingClassifier(matchingSetMinusActionSet);
+		//rewarder.payTaxesToRemainingClassifier(matchingSetMinusActionSet);
 
 		// Wenn Aktionen im ActionSet sind, dann wird die Aktion ausgeführt.
 		if (!actionSet.isEmpty()) {
@@ -124,7 +125,13 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			actionSet.add(generatedClassifier);
 		}
 
-		System.out.println(actionSet.get(0));
+		System.out.println("Größe des ActionSets: " + actionSet.size());
+		
+		
+		//TODO: Reward anpassen
+		rewarder.giveRewardToActions(reward + 0.7 * actionSet.get(0).getPrediction());
+		rewarder.removeAllActionsFromBucket();
+		
 		// Alle Aktionen im ActionSet werden zum Bucket hinzugefügt.
 		for (int i = 0; i < actionSet.size(); i++) {
 			

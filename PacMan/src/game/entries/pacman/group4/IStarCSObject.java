@@ -31,7 +31,7 @@ public interface IStarCSObject extends Serializable {
 	 *            Parameter beta.
 	 * 
 	 */
-	public void update(int reward, double learningRate);
+	public void update(double reward, double learningRate);
 
 	/**
 	 * Diese Methode führt eine Abwertung der Fitness aus.

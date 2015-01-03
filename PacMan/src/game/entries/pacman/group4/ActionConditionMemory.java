@@ -49,12 +49,15 @@ public class ActionConditionMemory implements IMemory {
 
 		for (int i = 0; i < objectCount; i++) {
 			try {
+
+
 				IStarCSObject obj = (IStarCSObject) in.readObject();
-				System.out.println("Condition: " + ((XCSObject) obj).condition);
+				// System.out.println("Condition: " + ((XCSObject)
+				// obj).condition);
 
 				if (!Double.isNaN(obj.getFitness())) {
 					memory.add(obj);
-					System.out.println("1 Objekt eingelesen");
+					// System.out.println("1 Objekt eingelesen");
 				}
 
 			} catch (ClassNotFoundException e) {
@@ -71,9 +74,15 @@ public class ActionConditionMemory implements IMemory {
 	@Override
 	public ArrayList<IStarCSObject> getMatchings(String observation) {
 		ArrayList<IStarCSObject> matchings = new ArrayList<IStarCSObject>();
-		for (int i = 0; i < memory.size(); i++) {
+		for (int i = memory.size() - 1 ; i > 0; i--) {
+			
+			if(memory.get(i).getFitness() <= 0.1){
+				memory.remove(i);
+				continue;
+			}
 			IStarCSObject classifier = memory.get(i).compareToGivenObservation(
 					observation);
+			
 			if (classifier != null) {
 				matchings.add(classifier);
 			}
@@ -83,7 +92,9 @@ public class ActionConditionMemory implements IMemory {
 
 	@Override
 	public void addClassifier(IStarCSObject classifier) {
+		memory.remove(classifier);
 		memory.add(classifier);
+		
 
 	}
 
@@ -94,13 +105,13 @@ public class ActionConditionMemory implements IMemory {
 		double fitness = calculatePopulationAverageFitness();
 
 		for (int i = 0; i < observation.length(); i++) {
-			if (Math.random() < 0.333333) {
+			if (Math.random() < 0.333333&& i> 3) {
 				condition = condition + '#';
 			} else {
 				condition = condition + observation.charAt(i);
 			}
 		}
-		System.out.println("Generate new Classifier");
+		//System.out.println("Generate new Classifier");
 
 		// int[] indicies = getClassifierIndiciesWithHighestFitness();
 		// IStarCSObject fitest = memory.get(indicies[0]);
@@ -125,9 +136,9 @@ public class ActionConditionMemory implements IMemory {
 		// }
 		// }
 
-		action = EnvironmentObserver.binaryDirections[(int) (Math.random() * 5)];
-		IStarCSObject obj = new XCSObject(condition, action, 1.0, 1.0, 40);
-		memory.add(obj);
+		action = EnvironmentObserver.binaryDirections[(int) (Math.random() * EnvironmentObserver.binaryDirections.length-1) + 1];
+		IStarCSObject obj = new XCSObject(condition, action.substring(1), 10.0, 1.0, 20);
+		this.addClassifier(obj);
 		return obj;
 	}
 

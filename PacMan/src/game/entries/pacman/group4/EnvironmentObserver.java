@@ -29,6 +29,8 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		observation.append(appendBinary(neighbours[2] != -1));
 		observation.append(appendBinary(neighbours[3] != -1));	
 		
+		//Letzte Richtung des Pacman:
+		observation.append(directionToBinary(game.getCurPacManDir()));
 		
 		
 		// Richtung in der die nächste Pille liegt: 3bit 000 oben, 001 rechts, 010 unten, 011 links, 100 keine Pille mehr da
@@ -90,6 +92,9 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 	public static final String[] binaryDirections = { "100", "000", "001", "010", "011"}; 
 	
 	private String directionToBinary(int direction){
+		if(direction > 3){
+			return binaryDirections[0];
+		}
 		return binaryDirections[direction + 1];
 	}
 
@@ -120,15 +125,20 @@ public class EnvironmentObserver implements IEnvironmentObserver{
 		int actualActivePowerPillCount = game.getPowerPillIndicesActive().length;
 		int actualScore = game.getScore();
 		
-		if(actualActivePillCount < lastPillCount){
-			reward = reward + 10;
+		if(actualScore == 0){
+			lastScore = 0;
 		}
 		
-		if(actualActivePowerPillCount < lastPowerPillCount){
-			reward = reward + 10;
-		}
+//		if(actualActivePillCount < lastPillCount){
+//			reward = reward + 10;
+//		}
+//		
+//		if(actualActivePowerPillCount < lastPowerPillCount){
+//			reward = reward + 10;
+//		}
 		
-		reward = reward + lastScore - actualScore;
+		reward = reward + actualScore - lastScore;
+		//System.out.println("reward: " + reward);
 		//möglichst hoher score
 		
 		lastPillCount = actualActivePillCount;

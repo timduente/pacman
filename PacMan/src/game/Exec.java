@@ -8,6 +8,8 @@ import game.core.GameView;
 import game.core.Replay;
 import game.core._G_;
 import game.core._RG_;
+import game.entries.pacman.MyPacMan;
+import game.player.ghost.AttractRepelGhosts;
 
 import java.awt.event.ActionEvent;
 
@@ -26,9 +28,9 @@ public class Exec {
 	public static void main(String[] args) {
 		Exec exec = new Exec();
 
-		// this can be used for numerical testing (non-visual, no delays)
-		// exec.runExperiment(new RandomPacMan(),new
-		// AttractRepelGhosts(true),100);
+//		 this can be used for numerical testing (non-visual, no delays)
+//		 exec.runExperiment(new MyPacMan(),new
+//		 AttractRepelGhosts(),20);
 
 		// run game without time limits (un-comment if required)
 		// exec.runGame(new RandomPacMan(),new RandomGhosts(),true,G.DELAY);

@@ -24,7 +24,7 @@ public interface IRewarder {
 	 * @param reward
 	 *            entsprechender Reward für ein erreichtes Ziel.
 	 */
-	public void giveRewardToActions(int reward);
+	public void giveRewardToActions(double reward);
 
 	/**
 	 * Alle Classifier, die nicht im ActionSet sind müssen Taxes bezahlen.
