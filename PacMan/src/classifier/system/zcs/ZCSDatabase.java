@@ -23,9 +23,16 @@ public class ZCSDatabase {
 		ZCSMatchSet erg = new ZCSMatchSet();
 		
 		for(ZCSEntry e : data) {
+			
+			//System.out.print("matching\n\t" + ZCSSystem.INT2BinaryStr(observationBits)  + "\n\t" + ZCSSystem.INT2BinaryStr(e.observation.getObservedConditions())
+			//		+ " (entry " + e.action.getDescription() + ")\n\t" + ZCSSystem.INT2BinaryStr(e.observation.getWildcards()) + " (wildcards)");
+			
 			if(e.observation.matches(observationBits)) {
 				erg.add(e);
-			}
+				//System.out.println("\n success");
+			} 
+			//else
+			//	System.out.println("\n no match");
 		}
 		
 		return erg;

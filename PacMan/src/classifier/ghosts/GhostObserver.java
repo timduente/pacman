@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import game.core.Game;
-import classifier.IAction;
-import classifier.IObservation;
 import classifier.IObserverSource;
 import classifier.IZCSClassifierDataSource;
 import classifier.system.zcs.ZCSEntry;
@@ -20,7 +18,7 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 
 	private static final int NUM_BITS = 32;
 	Random rnd = new Random();
-	double previousPacmanDist = Double.MAX_VALUE;
+	double previousPacmanDist = 30; // initial-distanz geschaetzt
 	int ghostID = -1;
 
 	public GhostObserver(int ghostID) {
@@ -39,12 +37,15 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 	//
 	//
 	// # semantik [index] [1 means <...> ]
-	// [0] ghost-y > pacman-y
-	// [1] ghost-y < pacman-y
+	// [0] ghost-y < pacman-y
+	// [1] ghost-y > pacman-y
 	// [2] ghost-x > pacman-x
 	// [3] ghost-x < pacman-x
 	//
 	// [4] ghosts-are-edible
+	//
+	//
+	// koordinatenursprung (0,0) ist oben links und y nach unten steigend und x nach rechts steigend
 	//
 
 	@Override
@@ -64,8 +65,8 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		// setup bitmasks
 		//
 
-		bitmap[0] = myY > pacmanY;
-		bitmap[1] = myY < pacmanY;
+		bitmap[0] = myY < pacmanY;
+		bitmap[1] = myY > pacmanY;
 		bitmap[2] = myX > pacmanX;
 		bitmap[3] = myX < pacmanX;
 
@@ -85,7 +86,11 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 	}
 
 	private static final int IS_EDIBLE_BITS = 1 << 4;
-	private static final int IS_NOT_EDIBLE_BITS = 1 << 4;
+	private static final int IS_EDIBLE_IDX = 4;
+	private static final int MOVE_UP = 0;
+	private static final int MOVE_RIGHT = 1;
+	private static final int MOVE_DOWN = 2;
+	private static final int MOVE_LEFT = 3;
 
 	@Override
 	public List<ZCSEntry> getSomeData() {
@@ -97,50 +102,67 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		// 1: rechts
 		// 2: unten
 		// 3: links
+		//
+		// koordinatenursprung (0,0) ist oben links und y nach unten steigend und x nach rechts steigend
+		//
 
 		List<ZCSEntry> data = new ArrayList<ZCSEntry>();
-
-//		// some sample data
-//		final int wildcardHopefullyAll1 = 0xFFFFFFFF;
-//		IObservation tst0o = new ZCSObservation(0, wildcardHopefullyAll1);
-//		IAction tst0a = new GhostAction(-1);
-//		ZCSEntry everything = new ZCSEntry(tst0o, tst0a, DEFAULT_MAX_FITNESS);
-//		data.add(everything);
 
 		//
 		// basic directions for moving towards pacman when not edible
 		//
-		// action:
-		// 0: oben
-		// 1: rechts
-		// 2: unten
-		// 3: links
-
-		// TODO: annahme: koordinatenursprung (0,0) ist unten links und y nach oben steigen und x nach rechts steigend
 
 		// move down
-		final int obsBitsDown = 1 << 0;
+		final int obsBitsDown = 1;
 		ZCSObservation obsDown = new ZCSObservation(obsBitsDown); // observation: posy
-		obsDown.setWldCard(0xFFFFFFFF).setWldBit(0, false).setWldBit(4, false); // pos-y and edible are significant
-		data.add(new ZCSEntry(obsDown, new GhostAction(2), DEFAULT_MAX_FITNESS));
+		obsDown.setWldCard(0xFFFFFFFF).setWldBit(0, false).setWldBit(IS_EDIBLE_IDX, false); // pos-y and edible are significant
+		data.add(new ZCSEntry(obsDown, new GhostAction(MOVE_DOWN), DEFAULT_MAX_FITNESS));
 
 		// move up
 		final int obsBitsUp = 1 << 1;
 		ZCSObservation obsUp = new ZCSObservation(obsBitsUp); // observation: posy
-		obsUp.setWldCard(0xFFFFFFFF).setWldBit(1, false).setWldBit(4, false); // pos-y and edible are significant
-		data.add(new ZCSEntry(obsUp, new GhostAction(0), DEFAULT_MAX_FITNESS));
+		obsUp.setWldCard(0xFFFFFFFF).setWldBit(1, false).setWldBit(IS_EDIBLE_IDX, false); // pos-y and edible are significant
+		data.add(new ZCSEntry(obsUp, new GhostAction(MOVE_UP), DEFAULT_MAX_FITNESS));
 
 		// move left
 		final int obsBitsLeft = 1 << 2;
-		ZCSObservation obsLeft = new ZCSObservation(obsBitsLeft); // observation: posy
-		obsLeft.setWldCard(0xFFFFFFFF).setWldBit(2, false).setWldBit(4, false); // pos-y and edible are significant
-		data.add(new ZCSEntry(obsLeft, new GhostAction(0), DEFAULT_MAX_FITNESS));
+		ZCSObservation obsLeft = new ZCSObservation(obsBitsLeft); // observation: posx
+		obsLeft.setWldCard(0xFFFFFFFF).setWldBit(2, false).setWldBit(IS_EDIBLE_IDX, false); // pos-x and edible are significant
+		data.add(new ZCSEntry(obsLeft, new GhostAction(MOVE_LEFT), DEFAULT_MAX_FITNESS));
 
 		// move right
 		final int obsBitsRight = 1 << 3;
-		ZCSObservation obsRight = new ZCSObservation(obsBitsRight); // observation: posy
-		obsRight.setWldCard(0xFFFFFFFF).setWldBit(3, false).setWldBit(4, false); // pos-y and edible are significant
-		data.add(new ZCSEntry(obsRight, new GhostAction(0), DEFAULT_MAX_FITNESS));
+		ZCSObservation obsRight = new ZCSObservation(obsBitsRight); // observation: posx
+		obsRight.setWldCard(0xFFFFFFFF).setWldBit(3, false).setWldBit(IS_EDIBLE_IDX, false); // pos-x and edible are significant
+		data.add(new ZCSEntry(obsRight, new GhostAction(MOVE_RIGHT), DEFAULT_MAX_FITNESS));
+
+		//
+		// basic directions for moving ***AWAY FROM*** pacman when edible
+		//
+
+		// move up
+		final int obsBitsDownEscape = 1 | IS_EDIBLE_BITS;
+		ZCSObservation obsDownEscape = new ZCSObservation(obsBitsDownEscape); // observation: posy
+		obsDownEscape.setWldCard(0xFFFFFFFF).setWldBit(0, false).setWldBit(IS_EDIBLE_IDX, false); // pos-y and edible are significant
+		data.add(new ZCSEntry(obsDownEscape, new GhostAction(MOVE_UP), DEFAULT_MAX_FITNESS));
+
+		// move down
+		final int obsBitsUpEscape = 1 << 1 | IS_EDIBLE_BITS;
+		ZCSObservation obsUpEscape = new ZCSObservation(obsBitsUpEscape); // observation: posy
+		obsUpEscape.setWldCard(0xFFFFFFFF).setWldBit(1, false).setWldBit(IS_EDIBLE_IDX, false); // pos-y and edible are significant
+		data.add(new ZCSEntry(obsUpEscape, new GhostAction(MOVE_DOWN), DEFAULT_MAX_FITNESS));
+
+		// move left
+		final int obsBitsLeftEscape = 1 << 2 | IS_EDIBLE_BITS;
+		ZCSObservation obsLeftEscape = new ZCSObservation(obsBitsLeftEscape); // observation: posx
+		obsLeftEscape.setWldCard(0xFFFFFFFF).setWldBit(2, false).setWldBit(IS_EDIBLE_IDX, false); // pos-x and edible are significant
+		data.add(new ZCSEntry(obsLeftEscape, new GhostAction(MOVE_RIGHT), DEFAULT_MAX_FITNESS));
+
+		// move right
+		final int obsBitsRightEscape = 1 << 3 | IS_EDIBLE_BITS;
+		ZCSObservation obsRightEscape = new ZCSObservation(obsBitsRightEscape); // observation: posx
+		obsRightEscape.setWldCard(0xFFFFFFFF).setWldBit(3, false).setWldBit(IS_EDIBLE_IDX, false); // pos-x and edible are significant
+		data.add(new ZCSEntry(obsRightEscape, new GhostAction(MOVE_LEFT), DEFAULT_MAX_FITNESS));
 
 		return data;
 	}
@@ -152,9 +174,7 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 	@Override
 	public int getReward(Game g) {
 
-		//
 		// negative rewards possible
-		//
 
 		//
 		// indirect goal: minimize (extremize) distance to pacman (to kill him)
@@ -165,10 +185,10 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		int minDistReward = 0;
 		if (g.getEdibleTime(ghostID) > 0) {
 			// if edible: indirect goal is to maximize distances
-			minDistReward = (int) (3 * (previousPacmanDist - currentTotalPacmanDist));
+			minDistReward = (int) (2 * (currentTotalPacmanDist - previousPacmanDist));
 		} else {
 			// if not edible: indirect goal is to minimize distances
-			minDistReward = (int) (3 * (currentTotalPacmanDist - previousPacmanDist));
+			minDistReward = (int) (2 * (previousPacmanDist - currentTotalPacmanDist));
 		}
 
 		//
@@ -177,7 +197,6 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 
 		// update data
 		previousPacmanDist = currentTotalPacmanDist;
-
 		return minDistReward;
 	}
 }

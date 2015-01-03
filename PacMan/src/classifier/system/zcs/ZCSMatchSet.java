@@ -14,7 +14,4 @@ public class ZCSMatchSet {
 	public List<ZCSEntry> getAllMatches() {
 		return matches;
 	}
-	
-	// TODO: get specific matches satisfying some conditions
-
 }

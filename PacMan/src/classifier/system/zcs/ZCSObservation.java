@@ -19,6 +19,11 @@ public class ZCSObservation implements IObservation {
 	public int getObservedConditions() {
 		return observationBits;
 	}
+	
+	@Override
+	public int getWildcards() {
+		return wildcardBits;
+	}
 
 	public boolean matches(int observationBits) {
 		// TODO: denkweise korrekt?

@@ -20,14 +20,15 @@ public class ZCSSystem implements IClassifierSystem {
 		}
 	}
 
-	private void rewardAction(int reward, IAction a) {
+	private void rewardActions(int reward) {
 
-		// TODO: sollte vor getAction aufgerufen werden, um vor auswahl eben	
-		// die vorige auswahl zu bewerten
-		
 		// einfach reward auf aktuelles actionset anwenden (weitere zeitschritte waeren moeglich)
 		if(actionset_A_current != null)
 			actionset_A_current.reward(reward);
+		
+		// zeitschritt davor auch noch bewerten
+		if(actionset_A_previous != null)
+			actionset_A_previous.reward(reward / 2);
 		
 	}
 
@@ -35,7 +36,7 @@ public class ZCSSystem implements IClassifierSystem {
 	public IAction getAction(int observationBits, int previousReward) {
 		
 		// reward previous selection
-		rewardAction(previousReward, null);
+		rewardActions(previousReward);
 
 		// matchset bilden
 		ZCSMatchSet matchset = database.getMatches(observationBits);
@@ -49,9 +50,6 @@ public class ZCSSystem implements IClassifierSystem {
 
 		// tatsaechliche action waehlen
 		IAction result = actionset.getHighestFitnessAction();
-		if (result == null)
-			System.out.println("action selection == null for observation: " + observationBits);
-
 		return result;
 	}
 
@@ -95,4 +93,23 @@ public class ZCSSystem implements IClassifierSystem {
 		return erg;
 	}
 
+	
+	
+	public static String INT2BinaryStr(int value){
+		
+		StringBuilder sb = new StringBuilder(32);
+		final int mask = 1;
+		
+		for(int i=31;i>=0;i--){
+			final int shiftErg = value >> i;
+			if((shiftErg & mask) == mask)
+				sb.append('1');
+			else
+				sb.append('0');
+		}
+		
+		return sb.toString();
+	}
+	
+	
 }

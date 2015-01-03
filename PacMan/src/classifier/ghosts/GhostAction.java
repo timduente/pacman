@@ -22,4 +22,18 @@ public class GhostAction implements IAction {
 		return dir;
 	}
 
+	@Override
+	public String getDescription() {
+		if(dir == 0)
+			return "upwards";
+		else if(dir == 1)
+			return "right";
+		else if(dir == 2)
+			return "downwards";
+		else if(dir == 3)
+			return "left";
+		
+		return "previous action";
+	}
+
 }
