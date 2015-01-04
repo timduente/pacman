@@ -44,5 +44,11 @@ public interface IStarCSObject extends Serializable {
 	public double getPrediction();
 	
 	public double getFitness();
+	
+	public double getSpecifity();
+	
+	public double getPredictionError();
+	
+	public String getCondition();
 
 }

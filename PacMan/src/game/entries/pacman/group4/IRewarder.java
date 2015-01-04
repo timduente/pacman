@@ -10,12 +10,14 @@ public interface IRewarder {
 	 * @param classifier
 	 */
 	public void addActionToBucket(IStarCSObject classifier);
+	
+	
 
 	/**
 	 * Löscht alle Aktionen aus dem Bucket.
 	 * 
 	 */
-	public void removeAllActionsFromBucket();
+	public ArrayList<IStarCSObject> removeAllActionsFromBucket();
 
 	/**
 	 * Allen Aktionen im Bucket wird der Reward zu Teil. Der Reward wird

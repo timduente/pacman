@@ -39,6 +39,8 @@ public interface IMemory {
 	public void addClassifier(IStarCSObject classifier);
 	
 	public IStarCSObject generateNewClassifierForObservation(String observation);
+	
+	public void printClassifier();
 
 	/*
 	 * Weitere Operationen update aller Fitnesswerte. etc...

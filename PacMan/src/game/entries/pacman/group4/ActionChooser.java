@@ -37,15 +37,26 @@ public class ActionChooser implements IActionChooser {
 //
 //		}
 
-		double maxPrediction = 0.0;
+		double maxPrediction = 0.1;
 		int indexToAdd = -1;
 		for (int i = 0; i < matchingSet.size(); i++) {
-			double elementPrediction = matchingSet.get(i).getPrediction();
+			double elementPrediction = matchingSet.get(i).getPrediction() * matchingSet.get(i).getSpecifity();
 			if (elementPrediction >= maxPrediction) {
 				maxPrediction = elementPrediction;
 				indexToAdd = i;
 			}
 		}
+		
+//		System.out.println("ACHTUNG: " + indexToAdd);
+//		System.out.println("Prediction: "+ maxPrediction);
+		
+//		if (maxPrediction <= 0.001) {
+//
+//			indexToAdd = -1;
+//
+//		}
+		
+		
 		
 		if(indexToAdd != -1){
 			actionSet.addAll(getSameActions(matchingSet.get(indexToAdd).getAction(), matchingSet));
@@ -58,11 +69,7 @@ public class ActionChooser implements IActionChooser {
 		
 		
 
-//		if (maxPrediction <= 0.0001) {
-//
-//			indexToAdd = -1;
-//
-//		}
+
 
 //		for (int i = 0; i < EnvironmentObserver.binaryDirections.length; i++) {
 //			if (indexToAdd == i) {
@@ -84,8 +91,9 @@ public class ActionChooser implements IActionChooser {
 	private ArrayList<IStarCSObject> getSameActions(String action,
 			ArrayList<IStarCSObject> matchingSet) {
 		ArrayList<IStarCSObject> sameActions = new ArrayList<IStarCSObject>();
+		System.out.println("Action: "+ action);
 
-		for (int i = matchingSet.size() - 1; i > 0; i--) {
+		for (int i = matchingSet.size() - 1; i >= 0; i--) {
 			if (matchingSet.get(i).getAction().equals(action)) {
 				sameActions.add(matchingSet.get(i));
 			}

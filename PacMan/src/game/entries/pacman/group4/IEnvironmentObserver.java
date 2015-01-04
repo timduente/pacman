@@ -24,6 +24,6 @@ public interface IEnvironmentObserver {
 	 * @param time vergangene Zeit
 	 * @return Integer gibt den Reward an.
 	 */
-	public int getReward(Game game, long time);
+	public double getReward(Game game, long time);
 
 }

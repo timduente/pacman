@@ -7,6 +7,8 @@ public class XCSObject implements IStarCSObject {
 	double prediction;
 	double predictionError;
 	double fitness;
+	
+	double specifity;
 
 	public XCSObject(String condition, String action, double prediction,
 			double predictionError, double fitness) {
@@ -15,6 +17,15 @@ public class XCSObject implements IStarCSObject {
 		this.prediction = prediction;
 		this.predictionError = predictionError;
 		this.fitness = fitness;
+		int count = 0;
+		
+		for(int i = 0; i< condition.length(); i++){
+			if(condition.charAt(i)== '#'){
+				i++;
+			}
+		}
+		
+		specifity = (condition.length()-count)/condition.length();
 	}
 	
 	
@@ -68,13 +79,12 @@ public class XCSObject implements IStarCSObject {
 		predictionError = lastPredictionError + learningRate
 				* (Math.abs(reward - lastPrediction) - lastPredictionError);
 		fitness = lastFitness + learningRate
-				* (1 / (0.01+lastPredictionError) - lastFitness);
+				* (1 / (0.00000001+lastPredictionError) - lastFitness);
 
 	}
 
 	@Override
 	public void payTax(double tax) {
-		if (fitness > tax)
 			fitness = fitness - tax;
 	}
 
@@ -92,5 +102,24 @@ public class XCSObject implements IStarCSObject {
 	public String toString() {
 		return condition + "@" + action + "@" + prediction + "@"
 				+ predictionError + "@" + fitness;
+	}
+
+
+
+	@Override
+	public double getSpecifity() {
+		return specifity;
+	}
+
+
+
+	@Override
+	public double getPredictionError() {
+		return predictionError;
+	}
+	
+	@Override
+	public String getCondition(){
+		return condition;
 	}
 }
