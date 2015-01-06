@@ -75,11 +75,11 @@ public class XCSObject implements IStarCSObject {
 		double lastPredictionError = predictionError;
 		double lastFitness = fitness;
 
-		prediction = lastPrediction + learningRate * (reward - lastPrediction);
-		predictionError = lastPredictionError + learningRate
-				* (Math.abs(reward - lastPrediction) - lastPredictionError);
-		fitness = lastFitness + learningRate
-				* (1 / (0.00000001+lastPredictionError) - lastFitness);
+		prediction = prediction + learningRate * (reward - prediction);
+		predictionError = predictionError + learningRate
+				* (Math.abs(reward - prediction) - predictionError);
+		fitness = fitness + learningRate
+				* (1 / (0.00000001+predictionError) - fitness);
 
 	}
 

@@ -14,6 +14,12 @@ public class Rewarder implements IRewarder {
 
 	private final static double TAX = 0.1;
 	private final static double lEARNING_RATE = 0.7;
+	private final static double DISCOUNT_RATE = 0.71;
+	
+	public Rewarder(){
+		
+		
+	}
 
 	@Override
 	public void addActionToBucket(IStarCSObject classifier) {
