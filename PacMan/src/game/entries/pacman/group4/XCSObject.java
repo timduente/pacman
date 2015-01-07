@@ -71,11 +71,18 @@ public class XCSObject implements IStarCSObject {
 
 	@Override
 	public void update(double reward, double learningRate) {
-		double lastPrediction = prediction;
-		double lastPredictionError = predictionError;
-		double lastFitness = fitness;
+		
+		if(reward != reward){
+			System.out.println("Aua");
+			(new int[3])[3] = 1;
+		}
 
 		prediction = prediction + learningRate * (reward - prediction);
+		if(prediction > 2000){
+			prediction = 2000;
+		}else if(prediction < -2000){
+			prediction = -2000;
+		}
 		predictionError = predictionError + learningRate
 				* (Math.abs(reward - prediction) - predictionError);
 		fitness = fitness + learningRate

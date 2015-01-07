@@ -8,7 +8,7 @@ public class ActionChooser implements IActionChooser {
 	// ArrayList<IStarCSObject> actionsWhichAreNotInActionSet = new
 	// ArrayList<IStarCSObject>();
 	@Override
-	public void getActionSetFor(ArrayList<IStarCSObject> matchingSet,
+	public IStarCSObject getActionSetFor(ArrayList<IStarCSObject> matchingSet,
 			ArrayList<IStarCSObject> actionSet,
 			ArrayList<IStarCSObject> matchingSetMinusActionSet) {
 
@@ -86,6 +86,10 @@ public class ActionChooser implements IActionChooser {
 		// matchingSetMinusActionSet.add(matchingSet.get(i));
 		// }
 		// }
+		if(indexToAdd != -1)
+			return matchingSet.get(indexToAdd);
+		else
+			return null;
 	}
 
 	private ArrayList<IStarCSObject> getSameActions(String action,

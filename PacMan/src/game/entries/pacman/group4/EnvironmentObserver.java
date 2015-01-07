@@ -185,17 +185,17 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		 if (lastPacmanDirection != actualPacmanDir
 		 && ((actualPacmanDir + lastPacmanDirection) == 4 || (actualPacmanDir
 		 + lastPacmanDirection) == 2)){
-			 reward = reward - 1.1; //<-- kein negativer Reward mehr. 
+			 reward = reward - 2; //<-- kein negativer Reward mehr. 
 		 } 
 		 else{
-//			 reward = reward + 1;
+			 reward = reward + 0.01;
 		 }
 		//
 		 if (lastPacmanNode == actualPacmanNode) {
-		   reward = reward - 1.1;
+		   reward = reward - 2;
 		 }
 		 else{
-//			 reward = reward +1 ;
+			 reward = reward + 0.01 ;
 		 }
 		//
 		// // System.out.println("lives: " + actualLives);
@@ -205,11 +205,11 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		// }
 
 		 if(actualActivePillCount < lastPillCount){
-		 reward = reward + 20;
+		 reward = reward + 15;
 		 }
 		
 		 if(actualActivePowerPillCount < lastPowerPillCount){
-		 reward = reward + 20;
+		 reward = reward + 15;
 		 }
 
 		//reward = reward + actualScore - lastScore;

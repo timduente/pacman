@@ -33,15 +33,14 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 	IEnvironmentObserver observer;
 	IActionChooser actionChooser;
 	IRewarder rewarder;
-	IRewarder secondLevelRewarder;
 
 	public MyPacMan() {
 		super();
 		memory = new ActionConditionMemory(10);
 		observer = new EnvironmentObserver();
 		actionChooser = new ActionChooser();
-		rewarder = new Rewarder();
-		secondLevelRewarder = new Rewarder();
+		rewarder = new Rewarder(5);
+
 
 		try {
 
@@ -115,7 +114,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		ArrayList<IStarCSObject> matchingSetMinusActionSet = new ArrayList<IStarCSObject>();
 
 		// Berechnung des ActionSets
-		actionChooser.getActionSetFor(matchings, actionSet,
+		IStarCSObject classifierWithMaxPred = actionChooser.getActionSetFor(matchings, actionSet,
 				matchingSetMinusActionSet);
 
 		// Belastung aller Classifier, die nicht im ActionSet enthalten sind.
@@ -141,6 +140,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 					.convertActionStringToDirectionInt(generatedClassifier
 							.getAction());
 			actionSet.add(generatedClassifier);
+			classifierWithMaxPred = generatedClassifier;
 		}
 
 		System.out.println("Aktion, die jetzt gemacht wird: "
@@ -148,32 +148,13 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 
 		// System.out.println("Größe des ActionSets: " + actionSet.size());
 
-		// TODO: Reward anpassen
-		// rewarder.giveRewardToActions(reward + 0.71
-		// * actionSet.get(0).getPrediction());
-
-		secondLevelRewarder.giveRewardToActions(reward / 2.0);
-		secondLevelRewarder.removeAllActionsFromBucket();
-
-		rewarder.giveRewardToActions(reward);
-		ArrayList<IStarCSObject> secondLevelActionSet = rewarder
-				.removeAllActionsFromBucket();
+		rewarder.giveRewardToActions(reward ,  classifierWithMaxPred.getPrediction());
+		rewarder.moveBuckets();
 
 		// Alle Aktionen im ActionSet werden zum Bucket hinzugefügt.
 		for (int i = 0; i < actionSet.size(); i++) {
 			rewarder.addActionToBucket(actionSet.get(i));
 		}
-
-		for (int i = 0; i < secondLevelActionSet.size(); i++) {
-			secondLevelRewarder.addActionToBucket(secondLevelActionSet.get(i));
-		}
-
-		// try {
-		// memory.writeMemoryToFile("test.txt");
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 
 		// Richtung wird zurückgegeben.
 		return nextDirection;

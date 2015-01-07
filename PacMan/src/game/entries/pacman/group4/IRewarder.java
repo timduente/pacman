@@ -10,14 +10,6 @@ public interface IRewarder {
 	 * @param classifier
 	 */
 	public void addActionToBucket(IStarCSObject classifier);
-	
-	
-
-	/**
-	 * Löscht alle Aktionen aus dem Bucket.
-	 * 
-	 */
-	public ArrayList<IStarCSObject> removeAllActionsFromBucket();
 
 	/**
 	 * Allen Aktionen im Bucket wird der Reward zu Teil. Der Reward wird
@@ -25,8 +17,10 @@ public interface IRewarder {
 	 * 
 	 * @param reward
 	 *            entsprechender Reward für ein erreichtes Ziel.
+	 * @param maximumPrediction maximale Prediction
 	 */
-	public void giveRewardToActions(double reward);
+
+	public void giveRewardToActions(double reward, double maximumPrediction);
 
 	/**
 	 * Alle Classifier, die nicht im ActionSet sind müssen Taxes bezahlen.
@@ -37,4 +31,8 @@ public interface IRewarder {
 	public void payTaxesToRemainingClassifier(
 			ArrayList<IStarCSObject> matchingSetMinusActionSet);
 
+	/**
+	 * Macht aus dem Bucket a[i] a[-1] usw.
+	 */
+	public void moveBuckets();
 }

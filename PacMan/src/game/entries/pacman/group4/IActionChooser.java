@@ -17,7 +17,7 @@ public interface IActionChooser {
 	 *            Ausgabe aller restlichen Classifier. Nötig für Taxes.
 	 */
 
-	public void getActionSetFor(ArrayList<IStarCSObject> matchingSet,
+	public IStarCSObject getActionSetFor(ArrayList<IStarCSObject> matchingSet,
 			ArrayList<IStarCSObject> actionSet,
 			ArrayList<IStarCSObject> matchingSetMinusActionSet);
 

@@ -10,37 +10,42 @@ import java.util.ArrayList;
  * 
  */
 public class Rewarder implements IRewarder {
-	ArrayList<IStarCSObject> lastActionBucket = new ArrayList<IStarCSObject>();
-
 	private final static double TAX = 0.1;
-	private final static double lEARNING_RATE = 0.7;
+	private final static double lEARNING_RATE = 0.5;
 	private final static double DISCOUNT_RATE = 0.71;
 	
-	public Rewarder(){
-		
-		
+	ArrayList<ArrayList<IStarCSObject>> buckets;
+	int bucketCount;
+	
+	public Rewarder(int bucketCount){
+		buckets = new ArrayList<ArrayList<IStarCSObject>>(bucketCount);
+		this.bucketCount = bucketCount;
+		for(int i = 0; i< bucketCount; i++){
+			buckets.add(new ArrayList<IStarCSObject>());
+		}
 	}
 
 	@Override
 	public void addActionToBucket(IStarCSObject classifier) {
-		lastActionBucket.add(0, classifier);
+		buckets.get(0).add(classifier);
+
 	}
 
 	@Override
-	public ArrayList<IStarCSObject> removeAllActionsFromBucket() {
-		ArrayList<IStarCSObject> old = new ArrayList<IStarCSObject>();
-		old.addAll(lastActionBucket);
-		for (int i = lastActionBucket.size() - 1; i > 0; i--) {
-			lastActionBucket.remove(i);
+	public void giveRewardToActions(double reward, double maximumPrediction) {
+		reward =reward + DISCOUNT_RATE * maximumPrediction;
+		for (int i = 0; i < buckets.size(); i++) {
+			giveRewardToActionList(reward, buckets.get(i) );
+			reward = reward * DISCOUNT_RATE;
+//			if(reward < 0){
+//				break;
+//			}
 		}
-		
-		return old;
 	}
-
-	@Override
-	public void giveRewardToActions(double reward) {
-		for (int i = 0; i < lastActionBucket.size(); i++) {
-			lastActionBucket.get(i).update(reward/lastActionBucket.size(), lEARNING_RATE);
+	
+	private void giveRewardToActionList(double reward, ArrayList<IStarCSObject> list){
+		for (int i = 0; i < list.size(); i++) {
+			list.get(i).update(reward /list.size(), lEARNING_RATE);
 		}
 	}
 
@@ -50,5 +55,11 @@ public class Rewarder implements IRewarder {
 		for (int i = 0; i < matchingSetMinusActionSet.size(); i++) {
 			matchingSetMinusActionSet.get(i).payTax(TAX);
 		}
+	}
+
+	@Override
+	public void moveBuckets() {
+		buckets.remove(bucketCount -1);
+		buckets.add(0,new ArrayList<IStarCSObject>());
 	}
 }
