@@ -4,9 +4,6 @@ import java.util.ArrayList;
 
 public class ActionChooser implements IActionChooser {
 
-	// ArrayList<IStarCSObject> actions = new ArrayList<IStarCSObject>();
-	// ArrayList<IStarCSObject> actionsWhichAreNotInActionSet = new
-	// ArrayList<IStarCSObject>();
 	@Override
 	public IStarCSObject getActionSetFor(ArrayList<IStarCSObject> matchingSet,
 			ArrayList<IStarCSObject> actionSet,

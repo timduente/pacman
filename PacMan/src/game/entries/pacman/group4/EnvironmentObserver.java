@@ -4,6 +4,8 @@ import game.core.G;
 import game.core.Game;
 
 public class EnvironmentObserver implements IEnvironmentObserver {
+	
+	int directionOfNextPill;
 
 	public String getObservationFromCurrentGameState(Game game) {
 		/*
@@ -79,9 +81,9 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		// Richtung in der die nächste Pille liegt: 3bit 000 oben, 001 rechts,
 		// 010 unten, 011 links, 100 keine Pille mehr da
 
-		int directionOfNextPill = directionToNextPill(game);
+		directionOfNextPill = directionToNextPill(game);
 		observation.append(directionToBinary(directionOfNextPill).substring(1));
-		System.out.println("Beobachtung: " + directionToBinary(directionOfNextPill));
+		//System.out.println("Beobachtung: " + directionToBinary(directionOfNextPill));
 
 		// Richtung in der die nächste PowerPille liegt: 3bit 000 oben, 001
 		// rechts, 010 unten, 011 links, 100 keine PowerPille mehr da
@@ -185,17 +187,17 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		 if (lastPacmanDirection != actualPacmanDir
 		 && ((actualPacmanDir + lastPacmanDirection) == 4 || (actualPacmanDir
 		 + lastPacmanDirection) == 2)){
-			 reward = reward - 2; //<-- kein negativer Reward mehr. 
+			 reward = reward - 2; 
 		 } 
 		 else{
-			 reward = reward + 0.01;
+			 reward = reward + 0.02;
 		 }
 		//
 		 if (lastPacmanNode == actualPacmanNode) {
 		   reward = reward - 2;
 		 }
 		 else{
-			 reward = reward + 0.01 ;
+			 reward = reward + 0.02 ;
 		 }
 		//
 		// // System.out.println("lives: " + actualLives);
@@ -203,6 +205,13 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		// reward = reward - 20;
 		//
 		// }
+		 
+		 if(lastPillCount == actualActivePillCount && lastPowerPillCount == actualActivePowerPillCount ){
+			 if(actualPacmanDir == directionOfNextPill)
+				 reward = reward + 5;
+			 else
+				 reward = reward - 5;
+		 }
 
 		 if(actualActivePillCount < lastPillCount){
 		 reward = reward + 15;
