@@ -1,11 +1,11 @@
-package classifier.system.zcs;
+package game.player.ghost.group4.system;
+
+import game.player.ghost.group4.IAction;
+import game.player.ghost.group4.IClassifierSystem;
+import game.player.ghost.group4.IZCSClassifierDataSource;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import classifier.IAction;
-import classifier.IClassifierSystem;
-import classifier.IZCSClassifierDataSource;
 
 public class ZCSSystem implements IClassifierSystem {
 

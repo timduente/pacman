@@ -1,4 +1,4 @@
-package classifier;
+package game.player.ghost.group4;
 
 public interface IAction {
 

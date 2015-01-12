@@ -1,7 +1,7 @@
-package classifier.system.zcs;
+package game.player.ghost.group4.system;
 
-import classifier.IAction;
-import classifier.IObservation;
+import game.player.ghost.group4.IAction;
+import game.player.ghost.group4.IObservation;
 
 public class ZCSEntry {
 	IObservation observation;

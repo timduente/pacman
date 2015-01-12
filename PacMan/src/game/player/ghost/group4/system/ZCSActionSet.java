@@ -1,9 +1,9 @@
-package classifier.system.zcs;
+package game.player.ghost.group4.system;
+
+import game.player.ghost.group4.IAction;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import classifier.IAction;
 
 public class ZCSActionSet {
 	List<ZCSEntry> actions = new LinkedList<ZCSEntry>();

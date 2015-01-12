@@ -1,4 +1,4 @@
-package classifier.system.zcs;
+package game.player.ghost.group4.system;
 
 import java.util.ArrayList;
 import java.util.List;

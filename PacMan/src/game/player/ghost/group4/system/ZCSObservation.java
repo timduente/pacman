@@ -1,6 +1,6 @@
-package classifier.system.zcs;
+package game.player.ghost.group4.system;
 
-import classifier.IObservation;
+import game.player.ghost.group4.IObservation;
 
 public class ZCSObservation implements IObservation {
 

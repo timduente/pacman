@@ -1,14 +1,13 @@
-package classifier.ghosts;
+package game.player.ghost.group4;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import game.core.G;
 import game.core.Game;
-import classifier.IObserverSource;
-import classifier.IZCSClassifierDataSource;
-import classifier.system.zcs.ZCSEntry;
-import classifier.system.zcs.ZCSObservation;
+import game.player.ghost.group4.system.ZCSEntry;
+import game.player.ghost.group4.system.ZCSObservation;
 
 //
 // data source interface hier auch, damit inhalt der observation-objekte
@@ -37,16 +36,43 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 	//
 	//
 	// # semantik [index] [1 means <...> ]
-	// [0] ghost-y < pacman-y
-	// [1] ghost-y > pacman-y
-	// [2] ghost-x > pacman-x
-	// [3] ghost-x < pacman-x
+	// [ 0] ghost-y < pacman-y
+	// [ 1] ghost-y > pacman-y
+	// [ 2] ghost-x > pacman-x
+	// [ 3] ghost-x < pacman-x
 	//
-	// [4] ghosts-are-edible
+	// [ 4] ghosts-are-edible
+	//
+	// [ 5] other ghost nearby (konkrete distanz im Code ersichtlich)
+	// [ 6] pacman very far away (konkrete distanz im Code ersichtlich)
+	// [ 7] pacman very nearby (konkrete distanz im Code ersichtlich)
+	// [ 8] pacman NEARER to thisghost-minimaldist-powerpill
+	//
+	// [ 9] ghost-y < pill-schwerpunkt-y
+	// [10] ghost-x < pill-schwerpunkt-x
+	// [11] pacman NEARER to pill-schwerpunkt than ghost
+	//
+	//
 	//
 	//
 	// koordinatenursprung (0,0) ist oben links und y nach unten steigend und x nach rechts steigend
 	//
+	
+	
+	private double euclDistSquared(double xa, double ya, double xb, double yb){
+		final double dx = xa - xb;
+		final double dy = ya - yb;
+		
+		return (dx*dx) + (dy*dy);
+	}
+	
+	
+	
+
+	private static final int PACMAN_VERYNEARBY_DIST_THRESHOLD = 5;
+	private static final int PACMAN_VERYFARAWAY_DIST_THRESHOLD = 25;
+	private static final double GHOST_NEARBY_DIST_THRESHOLD = 8;
+	private static final int DIST_MAX_STARTVAL = 999999;
 
 	@Override
 	public int getObservation(Game g) {
@@ -56,10 +82,57 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 			bitmap[i] = false; // default
 		}
 
-		final int myX = g.getX(g.getCurGhostLoc(ghostID));
-		final int myY = g.getY(g.getCurGhostLoc(ghostID));
-		final int pacmanX = g.getX(g.getCurPacManLoc());
-		final int pacmanY = g.getY(g.getCurPacManLoc());
+		final int myNode = g.getCurGhostLoc(ghostID);
+		final int pacmanNode = g.getCurPacManLoc();
+
+		final int myX = g.getX(myNode);
+		final int myY = g.getY(myNode);
+		final int pacmanX = g.getX(pacmanNode);
+		final int pacmanY = g.getY(pacmanNode);
+
+		final int pathDistToPacman = g.getPathDistance(myNode, pacmanNode);
+
+		// minimaldistanz zu anderem geist
+		double minEuclideanDistToGhost = DIST_MAX_STARTVAL;
+		for (int i = 0; i < Game.NUM_GHOSTS; ++i) {
+			minEuclideanDistToGhost = Math.min(g.getEuclideanDistance(myNode, g.getCurGhostLoc(i)), minEuclideanDistToGhost);
+		}
+
+		// minimaldistanz zu powerpille
+		int minDistToPowerpill = DIST_MAX_STARTVAL;
+		int idOfMindistPowerpillNode = -1;
+		for (int i = 0; i < g.getPowerPillIndices().length; ++i) {
+			final int nodeID = g.getPowerPillIndices()[i];
+
+			// wenn powerpille auf node pillnodes[i] noch aktiv --> distanzberechnung
+			if (g.checkPill(g.getPowerPillIndex(nodeID))) {
+				minDistToPowerpill = Math.min(g.getPathDistance(myNode, nodeID), minDistToPowerpill);
+				idOfMindistPowerpillNode = nodeID;
+			}
+		}
+
+		// pacmandistanz zur powerpille, die von diesem geist am geringsten entfernt ist
+		int pacmanDistToMindistPowerpillNode = DIST_MAX_STARTVAL;
+		if (idOfMindistPowerpillNode >= 0) {
+			pacmanDistToMindistPowerpillNode = g.getPathDistance(pacmanNode, idOfMindistPowerpillNode);
+		}
+
+		// schwerpunkt der normalen pills berechnen
+		double schwerpunktPillsX = 0;
+		double schwerpunktPillsY = 0;
+
+		int[] allPillNodes = g.getPillIndices();
+		for (int i = 0; i < allPillNodes.length; ++i) {
+			final int nodeID = allPillNodes[i];
+			
+			// wenn pille auf node, dann verwenden fuer schwerpunktsberechnung
+			if(g.checkPill(g.getPillIndex(nodeID))){
+				schwerpunktPillsX += g.getX(nodeID);
+				schwerpunktPillsY += g.getY(nodeID);				
+			}
+		}
+		schwerpunktPillsX /= allPillNodes.length;
+		schwerpunktPillsY /= allPillNodes.length;
 
 		//
 		// setup bitmasks
@@ -72,16 +145,51 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 
 		bitmap[4] = g.getEdibleTime(ghostID) > 0; // isEdible
 
+		bitmap[5] = minEuclideanDistToGhost <= GHOST_NEARBY_DIST_THRESHOLD;
+		bitmap[6] = pathDistToPacman >= PACMAN_VERYFARAWAY_DIST_THRESHOLD;
+		bitmap[7] = pathDistToPacman <= PACMAN_VERYNEARBY_DIST_THRESHOLD;
+		bitmap[8] = pacmanDistToMindistPowerpillNode < minDistToPowerpill;
+		
+		bitmap[9] = myY < schwerpunktPillsY;
+		bitmap[10] = myX < schwerpunktPillsX;
+		bitmap[11] = euclDistSquared(pacmanX, pacmanY, schwerpunktPillsX, schwerpunktPillsY) < euclDistSquared(myX, myY, schwerpunktPillsX, schwerpunktPillsY);
+
+		bitmap[12] = false; // reserviert --> richtungsbits geist0
+		bitmap[13] = false; // reserviert --> richtungsbits geist0
+		bitmap[14] = false; // reserviert --> richtungsbits geist1
+		bitmap[15] = false; // reserviert --> richtungsbits geist1
+		bitmap[16] = false; // reserviert --> richtungsbits geist2
+		bitmap[17] = false; // reserviert --> richtungsbits geist2
+		bitmap[18] = false; // reserviert --> richtungsbits geist3
+		bitmap[19] = false; // reserviert --> richtungsbits geist3
+		bitmap[20] = false; // reserviert --> richtungsbits pacman
+		bitmap[21] = false; // reserviert --> richtungsbits pacman
+
+		
 		//
 		// convert binary bitmask to datatype
 		//
-		int result = 0x00000000; // TEST: rnd.nextInt();
+		int result = 0x00000000;
 		for (int i = 0; i < NUM_BITS; ++i) {
 			if (bitmap[i]) {
 				result = result | (1 << i); //
 			}
 		}
-
+		
+		// Richtungsbits verwenden
+		// TODO: links/rechts, negativ, .. sonstwasfür bits --> ggf. erst auf byte casten
+		final int ghostDir0 = g.getCurGhostDir(0);
+		final int ghostDir1 = g.getCurGhostDir(1);
+		final int ghostDir2 = g.getCurGhostDir(2);
+		final int ghostDir3 = g.getCurGhostDir(3);
+		final int pacmanDir = g.getCurPacManDir();
+		
+		result |= (ghostDir0 & 3) << 12; // 2 richtungsbits an korrekte stelle schieben
+		result |= (ghostDir1 & 3) << 14; // 2 richtungsbits an korrekte stelle schieben
+		result |= (ghostDir2 & 3) << 16; // 2 richtungsbits an korrekte stelle schieben
+		result |= (ghostDir3 & 3) << 18; // 2 richtungsbits an korrekte stelle schieben
+		result |= (pacmanDir & 3) << 20; // 2 richtungsbits an korrekte stelle schieben
+		
 		return result;
 	}
 

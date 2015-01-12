@@ -1,6 +1,5 @@
-package classifier.ghosts;
+package game.player.ghost.group4;
 
-import classifier.IAction;
 
 //
 // wrapper klasse um einfach die korrekten ghost daten weiterzuleiten
