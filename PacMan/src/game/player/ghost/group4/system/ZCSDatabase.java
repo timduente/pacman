@@ -11,6 +11,10 @@ public class ZCSDatabase {
 		data.add(entry);
 	}
 	
+	public void add(List<ZCSEntry> entries) {
+		data.addAll(entries);
+	}
+	
 	public void clear() {
 		data.clear();
 	}
@@ -19,8 +23,13 @@ public class ZCSDatabase {
 		data.remove(entry);
 	}
 	
-	public ZCSMatchSet getMatches(int observationBits) {
-		ZCSMatchSet erg = new ZCSMatchSet();
+	public List<ZCSEntry> getAllEntries() {
+		return data;
+	}
+	
+	public void getMatches(int observationBits, ZCSMatchSet dest) {
+		
+		dest.clear();
 		
 		for(ZCSEntry e : data) {
 			
@@ -28,13 +37,11 @@ public class ZCSDatabase {
 			//		+ " (entry " + e.action.getDescription() + ")\n\t" + ZCSSystem.INT2BinaryStr(e.observation.getWildcards()) + " (wildcards)");
 			
 			if(e.observation.matches(observationBits)) {
-				erg.add(e);
+				dest.add(e);
 				//System.out.println("\n success");
 			} 
 			//else
 			//	System.out.println("\n no match");
 		}
-		
-		return erg;
 	}
 }

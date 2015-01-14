@@ -14,4 +14,8 @@ public class ZCSMatchSet {
 	public List<ZCSEntry> getAllMatches() {
 		return matches;
 	}
+	
+	public void clear(){
+		matches.clear();
+	}
 }

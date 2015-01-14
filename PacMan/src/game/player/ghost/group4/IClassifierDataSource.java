@@ -4,7 +4,7 @@ import game.player.ghost.group4.system.ZCSEntry;
 
 import java.util.List;
 
-public interface IZCSClassifierDataSource {
+public interface IClassifierDataSource {
 
 	List<ZCSEntry> getSomeData();
 

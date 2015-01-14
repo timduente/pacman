@@ -1,6 +1,8 @@
 package game.player.ghost.group4;
 
-public interface IClassifierSystem {
+import game.player.ghost.group4.system.ZCSEntry;
+
+public interface IClassifierSystem extends ICSDatabaseSource {
 
 	
 	// observation: true/false fuer einige conditions
@@ -8,5 +10,6 @@ public interface IClassifierSystem {
 	IAction getAction(int observationBits, int previousReward);
 	
 	// add some entries to database
-	void addData(IZCSClassifierDataSource dataSource);
+	void addData(IClassifierDataSource dataSource);
+	void addData(ZCSEntry entry);
 }

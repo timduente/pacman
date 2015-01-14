@@ -16,7 +16,7 @@ public class ZCSObservation implements IObservation {
 		this(observation, 0);
 	}
 
-	public int getObservedConditions() {
+	public int getBits() {
 		return observationBits;
 	}
 	
@@ -27,7 +27,7 @@ public class ZCSObservation implements IObservation {
 
 	public boolean matches(int observationBits) {
 		// TODO: denkweise korrekt?
-		long a = getObservedConditions();
+		long a = getBits();
 		long b = observationBits;
 		
 		// unterschiede finden:
@@ -39,7 +39,7 @@ public class ZCSObservation implements IObservation {
 	}
 
 	public boolean matches(IObservation other) {
-		return matches(other.getObservedConditions());
+		return matches(other.getBits());
 	}
 	
 	public ZCSObservation setWldCard(int w) {

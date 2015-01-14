@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import game.core.G;
 import game.core.Game;
 import game.player.ghost.group4.system.ZCSEntry;
 import game.player.ghost.group4.system.ZCSObservation;
@@ -13,7 +12,7 @@ import game.player.ghost.group4.system.ZCSObservation;
 // data source interface hier auch, damit inhalt der observation-objekte
 // moeglichst an einer stelle beisammen ist
 //
-public class GhostObserver implements IObserverSource, IZCSClassifierDataSource {
+public class GhostObserver implements IObserverSource, IClassifierDataSource, IClassifierGenerator {
 
 	private static final int NUM_BITS = 32;
 	Random rnd = new Random();
@@ -57,17 +56,13 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 	//
 	// koordinatenursprung (0,0) ist oben links und y nach unten steigend und x nach rechts steigend
 	//
-	
-	
-	private double euclDistSquared(double xa, double ya, double xb, double yb){
+
+	private double euclDistSquared(double xa, double ya, double xb, double yb) {
 		final double dx = xa - xb;
 		final double dy = ya - yb;
-		
-		return (dx*dx) + (dy*dy);
+
+		return (dx * dx) + (dy * dy);
 	}
-	
-	
-	
 
 	private static final int PACMAN_VERYNEARBY_DIST_THRESHOLD = 5;
 	private static final int PACMAN_VERYFARAWAY_DIST_THRESHOLD = 25;
@@ -124,11 +119,11 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		int[] allPillNodes = g.getPillIndices();
 		for (int i = 0; i < allPillNodes.length; ++i) {
 			final int nodeID = allPillNodes[i];
-			
+
 			// wenn pille auf node, dann verwenden fuer schwerpunktsberechnung
-			if(g.checkPill(g.getPillIndex(nodeID))){
+			if (g.checkPill(g.getPillIndex(nodeID))) {
 				schwerpunktPillsX += g.getX(nodeID);
-				schwerpunktPillsY += g.getY(nodeID);				
+				schwerpunktPillsY += g.getY(nodeID);
 			}
 		}
 		schwerpunktPillsX /= allPillNodes.length;
@@ -149,7 +144,7 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		bitmap[6] = pathDistToPacman >= PACMAN_VERYFARAWAY_DIST_THRESHOLD;
 		bitmap[7] = pathDistToPacman <= PACMAN_VERYNEARBY_DIST_THRESHOLD;
 		bitmap[8] = pacmanDistToMindistPowerpillNode < minDistToPowerpill;
-		
+
 		bitmap[9] = myY < schwerpunktPillsY;
 		bitmap[10] = myX < schwerpunktPillsX;
 		bitmap[11] = euclDistSquared(pacmanX, pacmanY, schwerpunktPillsX, schwerpunktPillsY) < euclDistSquared(myX, myY, schwerpunktPillsX, schwerpunktPillsY);
@@ -165,17 +160,16 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		bitmap[20] = false; // reserviert --> richtungsbits pacman
 		bitmap[21] = false; // reserviert --> richtungsbits pacman
 
-		
 		//
 		// convert binary bitmask to datatype
 		//
 		int result = 0x00000000;
 		for (int i = 0; i < NUM_BITS; ++i) {
 			if (bitmap[i]) {
-				result = result | (1 << i); //
+				result = result | (1 << i);
 			}
 		}
-		
+
 		// Richtungsbits verwenden
 		// TODO: links/rechts, negativ, .. sonstwasfür bits --> ggf. erst auf byte casten
 		final int ghostDir0 = g.getCurGhostDir(0);
@@ -183,13 +177,14 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		final int ghostDir2 = g.getCurGhostDir(2);
 		final int ghostDir3 = g.getCurGhostDir(3);
 		final int pacmanDir = g.getCurPacManDir();
-		
+
+		// ausgehend davon, dass immer nur 0,1,2,3 moeglich sind
 		result |= (ghostDir0 & 3) << 12; // 2 richtungsbits an korrekte stelle schieben
 		result |= (ghostDir1 & 3) << 14; // 2 richtungsbits an korrekte stelle schieben
 		result |= (ghostDir2 & 3) << 16; // 2 richtungsbits an korrekte stelle schieben
 		result |= (ghostDir3 & 3) << 18; // 2 richtungsbits an korrekte stelle schieben
 		result |= (pacmanDir & 3) << 20; // 2 richtungsbits an korrekte stelle schieben
-		
+
 		return result;
 	}
 
@@ -306,5 +301,30 @@ public class GhostObserver implements IObserverSource, IZCSClassifierDataSource 
 		// update data
 		previousPacmanDist = currentTotalPacmanDist;
 		return minDistReward;
+	}
+
+	static final int[] RND_ACTIONS = { MOVE_UP,MOVE_RIGHT,MOVE_DOWN,MOVE_LEFT };
+	
+	@Override
+	public ZCSEntry generateRandomClassifierForObservation(int observation, int fitness) {
+		
+		ZCSObservation obs = new ZCSObservation(observation, 0);// wildcard declaring everything significant
+		//obs.setWldCard(rnd.nextInt()); // random wildcards
+		//obs.setWldCard(~observation); // ueberall, wo in der observation eine 0, wird zu wildcard -> also unwichtige bits
+		
+		IAction a = new GhostAction(RND_ACTIONS[rnd.nextInt(4)]); // chose random movement
+		return new ZCSEntry(obs, a, fitness);
+	}
+
+	@Override
+	public ZCSEntry generateGeneticClassifier(int observation, ZCSEntry a, ZCSEntry b) {
+		
+		final int wildcardbits = a.getObservation().getWildcards() ^ b.getObservation().getWildcards();
+		ZCSObservation obs = new ZCSObservation(observation, wildcardbits);
+	
+		final int fitnessAvrg = (int)((a.getFitness() + b.getFitness()) * 0.5);
+		
+		IAction ac = new GhostAction(a.getAction().getActionBits() ^ b.getAction().getActionBits());
+		return new ZCSEntry(obs, ac, fitnessAvrg);
 	}
 }
