@@ -6,6 +6,7 @@ public interface IObservation {
 	// currently based on binary kram
 	//
 	
+	long getUniqueObservationID(); // contains bits and observationbits --> currently only possible because #bits=32 and #wildcard=32
 	
 	boolean matches(IObservation other);
 	boolean matches(int observationBits);

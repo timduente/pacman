@@ -1,8 +1,9 @@
 package game.player.ghost.group4;
 
+import java.util.List;
+
 import game.player.ghost.group4.system.ZCSEntry;
 
-import java.util.List;
 
 public interface IClassifierDataSource {
 

@@ -24,6 +24,11 @@ public class ZCSObservation implements IObservation {
 	public int getWildcards() {
 		return wildcardBits;
 	}
+	
+	public long getUniqueObservationID() {
+		final long tmp = getWildcards();
+		return getBits() | (tmp << 32);
+	}
 
 	public boolean matches(int observationBits) {
 		// TODO: denkweise korrekt?

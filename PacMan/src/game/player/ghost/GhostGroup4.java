@@ -14,25 +14,27 @@ import gui.AbstractGhost;
 public class GhostGroup4 extends AbstractGhost {
 
 	static final String DATABASE_FILENAME_PREFIX = "ghostdata";
-	
+	static final boolean IGNORE_NEGATIVE_CLASSIFIERS_ON_EXPORT = true; // do not export bad classifiers with low fitness
+	static final boolean ENABLE_FORGETTING = true; // forget some bad classifiers
 	
 	IClassifierSystem[] ghostClassifiers = new IClassifierSystem[Game.NUM_GHOSTS];
 	IObserverSource[] ghostObservers = new IObserverSource[Game.NUM_GHOSTS];
 	IClassifierGenerator classifierGenerator = null;
 	
 	ExternalClassifierParser[] externalDataParsers = new ExternalClassifierParser[Game.NUM_GHOSTS];
-	
 
 	
 	//
 	//
-	// - realisiert als classifier system (learning noch ausarbeiten)
-	// - TODO: idee fuer kommunikation: die classifier der einzel-geister untereinander austauschen und gute waehlen!
+	// - communication of agents could be done via "static" database with "global knowledge" which could be
+	// achieved with "pseudo-communication" asking other databases for their best classifiers with a given observation
+	//
+	// -> communication currently not possible because observations are "ghost-dependent" and DO CONTAIN GHOST-DEPENDENT data
 	//
 	//
+	// - average performance is at about 4000 - 5000 pacman points per game (2015-01-22)
 	//
 	//
-	
 	
 	
 	public GhostGroup4() {
@@ -74,32 +76,6 @@ public class GhostGroup4 extends AbstractGhost {
 		doPersistency(needPersistencyUpdate(game));
 
 		
-		//
-		// ALT
-		//
-		
-//		for (int g = 0; g < Game.NUM_GHOSTS; ++g) {
-//
-//			// get possible neigbouring directions/nodes
-//			int[] possibleNeighbours = game.getGhostNeighbours(g);
-//			int[] possibleDirs = game.getPossibleGhostDirs(g);
-//
-//			double mindist = 999999999;
-//			int nextDir = -1; // default direction is "lastdirection"
-//
-//			// search for next step which minimizes ghost-pacman-distance
-//			for (int i = 0; i < possibleDirs.length; ++i) {
-//				int tryDirection = possibleDirs[i];
-//				double tryDist = game.getEuclideanDistance(possibleNeighbours[tryDirection], game.getCurPacManLoc());
-//				if (tryDist <= mindist) {
-//					mindist = tryDist;
-//					nextDir = tryDirection;
-//				}
-//			}
-//
-//			dirs[g] = nextDir;
-//		}
-
 		
 		//
 		// learning classifier
@@ -107,18 +83,33 @@ public class GhostGroup4 extends AbstractGhost {
 
 		for (int i = 0; i < Game.NUM_GHOSTS; ++i) {
 			
-			// observation and previous reward
-			final int prevReward = ghostObservers[i].getReward(game);
-			final int classifierObservation = ghostObservers[i].getObservation(game);
+			IClassifierSystem system = ghostClassifiers[i];
+			IObserverSource observer = ghostObservers[i];
+			
+			
+			// forget some bad classifiers
+			if(game.getLevelTime() % 300 == 0 && ENABLE_FORGETTING) {
+				system.removeClassifiersWithSmallerFitness(0);
+			}
+			
+			// performance da geister eh "nichts tun koennen"
+			if(game.getLairTime(i) > 0) {
+				dirs[i] = -1;
+				continue;
+			}
+			
+			// previous reward
+			final int prevReward = observer.getReward(game);
+			system.reward(prevReward);
+			
+			// observe new situation
+			final int classifierObservation = observer.getObservation(game);
 			
 			// new action selection
-			IAction classifierAction = ghostClassifiers[i].getAction(classifierObservation, prevReward);
+			IAction classifierAction = system.getAction(classifierObservation);
 			
 			// put to data output
 			dirs[i] = classifierAction.getActionBits();
-			
-			if(i==0)
-				System.out.println("\t zcsghost" + i + "# rew: " + prevReward + " # obs: " + classifierObservation + " # action: " + dirs[i]);
 		}
 
 		return dirs;
@@ -130,13 +121,13 @@ public class GhostGroup4 extends AbstractGhost {
 			return;
 		
 		for (int g = 0; g < Game.NUM_GHOSTS; ++g) {
-			externalDataParsers[g].export(ghostClassifiers[g], "./" +DATABASE_FILENAME_PREFIX + g + ".csv");
+			//ghostClassifiers[g].printSomeInfoToConsole();
+			externalDataParsers[g].export(ghostClassifiers[g], "./" +DATABASE_FILENAME_PREFIX + g + ".csv", IGNORE_NEGATIVE_CLASSIFIERS_ON_EXPORT);
 		}
-		
 	}
 	
 	private boolean needPersistencyUpdate(Game g){
-		return g.getLevelTime() > 100 && (g.getLevelTime() % 100) == 0;
+		return g.getLevelTime() > 100 && g.getLevelTime() % 300 == 0;
 	}
 	
 	

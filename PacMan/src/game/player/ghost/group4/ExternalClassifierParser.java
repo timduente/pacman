@@ -22,7 +22,7 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 	static final int FITNESS_INDEX = 3;
 
 	String filePath = null;
-	boolean IS_BINARY_STRING_MODE = true;
+	boolean IS_BINARY_STRING_MODE = false;
 
 	public ExternalClassifierParser(String pfilePath) {
 		filePath = pfilePath;
@@ -63,7 +63,7 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 				// parse data and convert to classifier
 				int[] iParams = new int[params.length];
 				for (int i = 0; i < params.length; ++i) {
-					
+
 					int parsed = 0;
 
 					if (IS_BINARY_STRING_MODE && i == OBSERVATION_INDEX)
@@ -128,23 +128,33 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 
 	}
 
-	public void export(ICSDatabaseSource database, String pFilePath) {
+	public void export(ICSDatabaseSource database, String pFilePath, boolean ignoreNegativeFitnessEntries) {
 
 		if (pFilePath == null)
 			pFilePath = filePath;
 
-		List<ZCSEntry> source = database.getClassifierDatabase();
-		if (source == null)
+		ZCSEntry[] source = database.getClassifierDatabase();
+		if (source == null || source.length < 1)
 			return;
 
 		String[] paramsBuffer = new String[PARAMETER_COUNT]; // speicher wiederverwenden
-		StringBuilder result = new StringBuilder(source.size());
+		StringBuilder result = new StringBuilder(source.length);
 		final String newLineSymbol = System.lineSeparator(); // java 1.7 (http://stackoverflow.com/questions/19084352/how-to-write-new-line-character-to-a-file-in-java)
 
 		try {
-			for (ZCSEntry entry : source) {
-				result.append(classifierToStringLine(entry, paramsBuffer, IS_BINARY_STRING_MODE) + newLineSymbol);
+
+			if (ignoreNegativeFitnessEntries) {
+				// just ignore classifiers with negative fitness value
+				for (ZCSEntry entry : source) {
+					if (entry.getFitness() >= 0)
+						result.append(classifierToStringLine(entry, paramsBuffer, IS_BINARY_STRING_MODE) + newLineSymbol);
+				}
+			} else {
+				for (ZCSEntry entry : source) {
+					result.append(classifierToStringLine(entry, paramsBuffer, IS_BINARY_STRING_MODE) + newLineSymbol);
+				}
 			}
+
 		} catch (Exception ex) {
 			System.out.println(">> error during export --> loop interrupted, maybe another thread still manipulated it ...");
 		}
@@ -164,7 +174,7 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 			}
 		} else {
 			// simply make a backup
-			//String dstName = file.toPath() + file.getName() + "-BACKUP";
+			// String dstName = file.toPath() + file.getName() + "-BACKUP";
 			String dstName = file.getName() + "-BACKUP";
 			try {
 				Files.copy(file.toPath(), (new File(dstName)).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -186,7 +196,7 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 				bw.close();
 			}
 
-			System.out.println(">> export to" + pFilePath + " done");
+			// System.out.println(">> export to" + pFilePath + " done");
 		} catch (Exception e) {
 			System.out.println(">> exception during export data may be invalid!");
 			e.printStackTrace();

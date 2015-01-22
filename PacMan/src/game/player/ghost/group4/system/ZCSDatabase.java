@@ -1,47 +1,100 @@
 package game.player.ghost.group4.system;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 public class ZCSDatabase {
 
-	List<ZCSEntry> data = new ArrayList<ZCSEntry>();
+	// static values to find "global" solutions --> could have been achieved with "pseudo-communication"
+	// asking other databases for their best classifiers with a given observation
+	// TODO: currently not possible because observations are "ghost-dependent" and DO CONTAIN GHOST-DEPENDENT data
 	
+	
+	Map<Long, ZCSEntry> mp = new HashMap<Long, ZCSEntry>();
+	Stack<Long> tmpStack = new Stack<Long>();
+	
+	static int avrgFitness = 0;
+
 	public void add(ZCSEntry entry) {
-		data.add(entry);
+
+		final long key = entry.getObservation().getUniqueObservationID();
+
+		// when classifier already exits --> update if fitness is better!
+		ZCSEntry current = mp.get(key);
+		if (current != null) {
+
+			// update if better
+			if (entry.getFitness() > current.getFitness()) {
+				mp.put(key, entry);
+			}
+
+		} else {
+			// insert if no classifier exists
+			mp.put(key, entry);
+		}
+
 	}
-	
+
 	public void add(List<ZCSEntry> entries) {
-		data.addAll(entries);
+		for (ZCSEntry e : entries) {
+			add(e);
+		}
 	}
-	
+
 	public void clear() {
-		data.clear();
+		mp.clear();
 	}
-	
+
 	public void remove(ZCSEntry entry) {
-		data.remove(entry);
+		mp.remove(entry.getObservation().getUniqueObservationID());
 	}
-	
-	public List<ZCSEntry> getAllEntries() {
-		return data;
+
+	public ZCSEntry[] getAllEntries() {
+		ZCSEntry[] arr = new ZCSEntry[mp.values().size()];
+		return mp.values().toArray(arr);
 	}
-	
-	public void getMatches(int observationBits, ZCSMatchSet dest) {
-		
+
+	public void removeClassifiersWithSmallerFitness(int threshold) {
+
+		tmpStack.clear();
+
+		Iterator<ZCSEntry> coll = mp.values().iterator();
+		while (coll.hasNext()) {
+			ZCSEntry e = coll.next();
+			if (e.getFitness() < threshold)
+				tmpStack.push(e.getObservation().getUniqueObservationID());
+		}
+
+		while (!tmpStack.empty()) {
+			mp.remove(tmpStack.pop());
+		}
+
+	}
+
+	public void getMatches(int observationBits, List<ZCSEntry> dest) {
+
 		dest.clear();
 		
-		for(ZCSEntry e : data) {
-			
-			//System.out.print("matching\n\t" + ZCSSystem.INT2BinaryStr(observationBits)  + "\n\t" + ZCSSystem.INT2BinaryStr(e.observation.getObservedConditions())
-			//		+ " (entry " + e.action.getDescription() + ")\n\t" + ZCSSystem.INT2BinaryStr(e.observation.getWildcards()) + " (wildcards)");
-			
-			if(e.observation.matches(observationBits)) {
+		int tmp = 0;
+		final int count = mp.values().size();
+
+		Iterator<ZCSEntry> coll = mp.values().iterator();
+		while (coll.hasNext()) {
+			ZCSEntry e = coll.next();
+			tmp += e.getFitness();
+			if (e.observation.matches(observationBits)) {
 				dest.add(e);
-				//System.out.println("\n success");
-			} 
-			//else
-			//	System.out.println("\n no match");
+			}
 		}
+		
+		// keep track with some monitoring info
+		avrgFitness = (int)(tmp / (double) count);
+	}
+	
+	public int getCurrentAverageFitness() {
+		return avrgFitness;
 	}
 }
