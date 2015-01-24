@@ -1,6 +1,7 @@
 package game.player.ghost.group4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -14,13 +15,18 @@ import game.player.ghost.group4.system.ZCSObservation;
 //
 public class GhostObserver implements IObserverSource, IClassifierDataSource, IClassifierGenerator {
 
-	private static final int NUM_BITS = 32;
-	private static final int REWARD_PER_PACMANLIVES = 5000;
-	private static final double REWARD_PER_DELTADISTANCE = 12;
+	private static final int NUM_BITS_USED = 22;
+	private static final int REWARD_PER_PACMANLIVES = 60000;
+	private static final double REWARD_PER_DELTADISTANCE = 10;
+	
+	private static final double WILDC_SPAWNRATE_RANDOM_GENERATION = 0.1;
+	private static final double WILDCBIT_SPAWNRATE_GENETIC_GENERATION = 0.001;
 	
 	
+	boolean[] bitmap = new boolean[NUM_BITS_USED];
+	//boolean wasEdiblePrevious = false;
 	Random rnd = new Random();
-	double previousPacmanDist = 30; // initial-distanz geschaetzt
+	int previousPacmanDist = 50; // initial-distanz geschaetzt
 	int previousPacmanLives = Game.NUM_LIVES;
 	int ghostID = -1;
 
@@ -45,7 +51,7 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 	// [ 2] ghost-x > pacman-x
 	// [ 3] ghost-x < pacman-x
 	//
-	// [ 4] ghosts-are-edible
+	// [ 4] ghost in edible danger (e.g. is edible and pacman can reach ghost in remaining time)
 	//
 	// [ 5] other ghost nearby (konkrete distanz im Code ersichtlich)
 	// [ 6] pacman very far away (konkrete distanz im Code ersichtlich)
@@ -56,6 +62,18 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 	// [10] ghost-x < pill-schwerpunkt-x
 	// [11] pacman NEARER to pill-schwerpunkt than ghost
 	//
+	// [12] richtungsbit ghost0
+	// [13] richtungsbit ghost0
+	// [14] richtungsbit ghost1
+	// [15] richtungsbit ghost1
+	// [16] richtungsbit ghost2
+	// [17] richtungsbit ghost2
+	// [18] richtungsbit ghost3
+	// [19] richtungsbit ghost3
+	// [20] richtungsbit pacman
+	// [21] richtungsbit pacman
+	//
+	//
 	//
 	//
 	//
@@ -65,22 +83,19 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 	private double euclDistSquared(double xa, double ya, double xb, double yb) {
 		final double dx = xa - xb;
 		final double dy = ya - yb;
-
 		return (dx * dx) + (dy * dy);
 	}
 
-	private static final int PACMAN_VERYNEARBY_DIST_THRESHOLD = 5;
-	private static final int PACMAN_VERYFARAWAY_DIST_THRESHOLD = 25;
-	private static final double GHOST_NEARBY_DIST_THRESHOLD = 8;
+	private static final int PACMAN_VERYNEARBY_DIST_THRESHOLD = 20;
+	private static final int PACMAN_VERYFARAWAY_DIST_THRESHOLD = 90;
+	private static final double GHOST_NEARBY_DIST_THRESHOLD = 20;
 	private static final int DIST_MAX_STARTVAL = 999999;
 
 	@Override
 	public int getObservation(Game g) {
 
-		boolean[] bitmap = new boolean[NUM_BITS];
-		for (int i = 0; i < NUM_BITS; ++i) {
-			bitmap[i] = false; // default
-		}
+		Arrays.fill(bitmap, false);
+		
 
 		final int myNode = g.getCurGhostLoc(ghostID);
 		final int pacmanNode = g.getCurPacManLoc();
@@ -91,7 +106,7 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		final int pacmanY = g.getY(pacmanNode);
 
 		final int pathDistToPacman = g.getPathDistance(myNode, pacmanNode);
-
+		
 		// minimaldistanz zu anderem geist
 		double minEuclideanDistToGhost = DIST_MAX_STARTVAL;
 		for (int i = 0; i < Game.NUM_GHOSTS; ++i) {
@@ -126,14 +141,17 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 			final int nodeID = allPillNodes[i];
 
 			// wenn pille auf node, dann verwenden fuer schwerpunktsberechnung
-			if (g.checkPill(g.getPillIndex(nodeID))) {
-				schwerpunktPillsX += g.getX(nodeID);
-				schwerpunktPillsY += g.getY(nodeID);
-			}
+			// performance
+			final int useNodeFactor = g.checkPill(g.getPillIndex(nodeID)) ? 1 : 0;
+			schwerpunktPillsX += useNodeFactor * g.getX(nodeID);
+			schwerpunktPillsY += useNodeFactor * g.getY(nodeID);
 		}
 		schwerpunktPillsX /= allPillNodes.length;
 		schwerpunktPillsY /= allPillNodes.length;
 
+		final boolean inEdibleDanger = isInEdibleDanger(g,pathDistToPacman);
+		
+		
 		//
 		// setup bitmasks
 		//
@@ -143,7 +161,8 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		bitmap[2] = myX > pacmanX;
 		bitmap[3] = myX < pacmanX;
 
-		bitmap[4] = g.getEdibleTime(ghostID) > 0; // isEdible
+		//bitmap[4] = edibleTimeLeft > 0; // isEdible
+		bitmap[4] = inEdibleDanger;
 
 		bitmap[5] = minEuclideanDistToGhost <= GHOST_NEARBY_DIST_THRESHOLD;
 		bitmap[6] = pathDistToPacman >= PACMAN_VERYFARAWAY_DIST_THRESHOLD;
@@ -169,10 +188,11 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		// convert binary bitmask to datatype
 		//
 		int result = 0x00000000;
-		for (int i = 0; i < NUM_BITS; ++i) {
-			if (bitmap[i]) {
-				result = result | (1 << i);
-			}
+		int bitmapMask = 0x00000001;
+		for (int i = 0; i < NUM_BITS_USED; ++i) {
+			// perfomance
+			result = result | ((bitmap[i] ? 1 : 0) * bitmapMask);
+			bitmapMask = bitmapMask << 1;
 		}
 
 		// Richtungsbits verwenden
@@ -284,6 +304,18 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 
 		return data;
 	}
+	
+	@SuppressWarnings("unused")
+	private boolean isEdible(Game g) {
+		return g.getEdibleTime(ghostID) > Game.DELAY;
+	}
+	
+	private boolean isInEdibleDanger(Game g, int pathDistToPacman) {
+		final int edibleTimeLeft = g.getEdibleTime(ghostID);
+		final int myMaxDistWhileEdible = edibleTimeLeft / (Game.DELAY * Game.GHOST_SPEED_REDUCTION);
+		final int pacmanMaxDistWhileEdible = edibleTimeLeft / Game.DELAY;
+		return ! (((myMaxDistWhileEdible + pacmanMaxDistWhileEdible) < pathDistToPacman) | (edibleTimeLeft < Game.DELAY));
+	}
 
 	//
 	// reward
@@ -298,13 +330,14 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		// indirect goal: minimize (extremize) distance to pacman (to kill him)
 		//
 
-		//final double currentTotalPacmanDist = g.getEuclideanDistance(g.getCurGhostLoc(ghostID), g.getCurPacManLoc());
-		final double currentTotalPacmanDist = g.getPathDistance(g.getCurGhostLoc(ghostID), g.getCurPacManLoc());
-
+		final int currentTotalPacmanDist = g.getPathDistance(g.getCurGhostLoc(ghostID), g.getCurPacManLoc());
+		//final boolean isEdible = isEdible(g);
+		
 		int minDistReward = 0;
-		if (g.getEdibleTime(ghostID) > 0) {
+		if (isInEdibleDanger(g, currentTotalPacmanDist)) {
 			// if edible: indirect goal is to maximize distances
 			minDistReward = (int) (REWARD_PER_DELTADISTANCE * (currentTotalPacmanDist - previousPacmanDist));
+			
 		} else {
 			// if not edible: indirect goal is to minimize distances
 			minDistReward = (int) (REWARD_PER_DELTADISTANCE * (previousPacmanDist - currentTotalPacmanDist));
@@ -315,8 +348,9 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		//
 		
 		final int pacmanLivesDelta = g.getLivesRemaining() - previousPacmanLives;
-		final double pacmanLivesReward = pacmanLivesDelta * (double) REWARD_PER_PACMANLIVES;
-
+		double pacmanLivesReward = pacmanLivesDelta * (double) REWARD_PER_PACMANLIVES;
+		pacmanLivesReward -= (pacmanLivesDelta < 0 ? 1 : 0) * pacmanLivesReward * 0.75; // do not penalize dying THAT EXTREMELY
+		
 		//
 		// other goals ...
 		//
@@ -324,6 +358,9 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		// update data
 		previousPacmanDist = currentTotalPacmanDist;
 		previousPacmanLives = g.getLivesRemaining();
+		//wasEdiblePrevious = isEdible;
+		
+		// calc final reward
 		return minDistReward + (int)pacmanLivesReward;
 	}
 
@@ -333,10 +370,15 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 	public ZCSEntry generateRandomClassifierForObservation(int observation, int fitness) {
 		
 		ZCSObservation obs = new ZCSObservation(observation, 0);// wildcard declaring everything significant
-		//obs.setWldCard(rnd.nextInt()); // random wildcards
 		//obs.setWldCard(~observation); // ueberall, wo in der observation eine 0, wird zu wildcard -> also unwichtige bits
 		
-		IAction a = new GhostAction(RND_ACTIONS[rnd.nextInt(4)]); // chose random movement
+		// random wildcards at specific rates
+		if(rnd.nextDouble() <= WILDC_SPAWNRATE_RANDOM_GENERATION) {
+			obs.setWldCard(rnd.nextInt()); 
+		}
+		
+		// chose random movement
+		IAction a = new GhostAction(RND_ACTIONS[rnd.nextInt(4)]);
 		return new ZCSEntry(obs, a, fitness);
 	}
 
@@ -346,6 +388,12 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 		final int wildcardbits = a.getObservation().getWildcards() ^ b.getObservation().getWildcards();
 		ZCSObservation obs = new ZCSObservation(observation, wildcardbits);
 	
+		
+		if (rnd.nextDouble() < WILDCBIT_SPAWNRATE_GENETIC_GENERATION) {
+			obs.setWldCard((rnd.nextInt() & rnd.nextInt()) ^ obs.getWildcards());
+		}
+		
+		
 		final int fitnessAvrg = (int)((a.getFitness() + b.getFitness()) * 0.5);
 		
 		IAction ac = new GhostAction(a.getAction().getActionBits() ^ b.getAction().getActionBits());
