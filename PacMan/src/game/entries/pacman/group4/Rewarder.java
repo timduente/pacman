@@ -10,8 +10,8 @@ import java.util.ArrayList;
  * 
  */
 public class Rewarder implements IRewarder {
-	private final static double TAX = 0.1;
-	private final static double lEARNING_RATE = 0.5;
+	private final static double TAX = 0.05;
+	private final static double lEARNING_RATE = 0.35;
 	private final static double DISCOUNT_RATE = 0.71;
 	
 	ArrayList<ArrayList<IStarCSObject>> buckets;
@@ -33,7 +33,7 @@ public class Rewarder implements IRewarder {
 
 	@Override
 	public void giveRewardToActions(double reward, double maximumPrediction) {
-		reward =reward + DISCOUNT_RATE * maximumPrediction;
+		reward = reward + DISCOUNT_RATE * maximumPrediction;
 		for (int i = 0; i < buckets.size(); i++) {
 			giveRewardToActionList(reward, buckets.get(i) );
 			reward = reward * DISCOUNT_RATE;

@@ -38,7 +38,7 @@ public interface IMemory {
 	 */
 	public void addClassifier(IStarCSObject classifier);
 	
-	public IStarCSObject generateNewClassifierForObservation(String observation);
+	public IStarCSObject generateNewClassifierForObservation(String observation, int[] possibleDirections);
 	
 	public void printClassifier();
 

@@ -10,15 +10,19 @@ public class ActionChooser implements IActionChooser {
 			ArrayList<IStarCSObject> matchingSetMinusActionSet) {
 
 		double averagePrediction = getAveragePrediction(matchingSet);
-		double maxPrediction = Math.abs(averagePrediction); // Möchte gerne
+		double minPredictionError = 1.0;
+		double maxPrediction =  0.0;//Math.abs(averagePrediction); // Möchte gerne
 															// positiven Reward
 															// haben.
 		int indexToAdd = -1;
+		IStarCSObject classifier;
 		for (int i = 0; i < matchingSet.size(); i++) {
-			double elementPrediction = matchingSet.get(i).getPrediction()
-					* matchingSet.get(i).getSpecifity();
-			if (elementPrediction >= maxPrediction) {
+			classifier = matchingSet.get(i);
+			double elementPrediction = classifier.getPrediction() ;
+			double elementPredictionError = classifier.getPredictionError();
+			if (elementPrediction > maxPrediction) {
 				maxPrediction = elementPrediction;
+				minPredictionError = elementPredictionError;
 				indexToAdd = i;
 			}
 		}
@@ -65,10 +69,9 @@ public class ActionChooser implements IActionChooser {
 
 	@Override
 	public int convertActionStringToDirectionInt(String action) {
-		action = "0" + action;
 		for (int i = 0; i < EnvironmentObserver.binaryDirections.length; i++) {
 			if (action.equals(EnvironmentObserver.binaryDirections[i])) {
-				return i - 1;
+				return i;
 			}
 		}
 		return -1;
