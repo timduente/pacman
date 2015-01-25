@@ -55,9 +55,10 @@ public class XCSObject implements IStarCSObject {
 		}
 
 		for (int i = 0; i < observation.length(); i++) {
-			if (this.condition.charAt(i) == '0' && observation.charAt(i) == '1'
+			if (this.condition.charAt(i) != '#' && this.condition.charAt(i) != observation.charAt(i)
+					/*this.condition.charAt(i) == '0' && observation.charAt(i) == '1'
 					|| this.condition.charAt(i) == '1'
-					&& observation.charAt(i) == '0') {
+					&& observation.charAt(i) == '0' || this.condition.charAt(i) == '0' && observation.charAt(i) == '|' || this.condition.charAt(i) == '1' && observation.charAt(i) == '|'*/) {
 				return null;
 			}
 		}
@@ -86,12 +87,13 @@ public class XCSObject implements IStarCSObject {
 		predictionError = predictionError + learningRate
 				* (Math.abs(reward - prediction) - predictionError);
 		fitness = fitness + learningRate
-				* (1 / (0.00000001+predictionError) - fitness);
+				* (1 / (predictionError == 0.0 ?0.00000001:predictionError) - fitness);
 
 	}
 
 	@Override
 	public void payTax(double tax) {
+		if(fitness >= tax)
 			fitness = fitness - tax;
 	}
 

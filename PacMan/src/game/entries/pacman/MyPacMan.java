@@ -36,10 +36,10 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 
 	public MyPacMan() {
 		super();
-		memory = new ActionConditionMemory(10);
+		memory = new ActionConditionMemory(16000);
 		observer = new EnvironmentObserver();
 		actionChooser = new ActionChooser();
-		rewarder = new Rewarder(5);
+		rewarder = new Rewarder(1);
 
 
 		try {
@@ -49,37 +49,6 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// Test:
-		// memory.addClassifier(new
-		// XCSObject("1######00010000000100001000010000", "00", 10, 0.2, 20));
-		// memory.addClassifier(new
-		// XCSObject("#1#####00110000000100001000010000", "01", 10, 0.2, 20));
-		// memory.addClassifier(new
-		// XCSObject("##1####01010000000100001000010000", "10", 10, 0.2, 20));
-		// memory.addClassifier(new
-		// XCSObject("###1###01110000000100001000010000", "11", 10, 0.2, 20));
-
-		// memory.addClassifier(new XCSObject("1######1###########", "00", 10,
-		// 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("#1######1##########", "01", 10,
-		// 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("##1######1#########", "10", 10,
-		// 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("###1######1########", "11", 10,
-		// 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("00", "00", 10, 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("01", "01", 10, 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("10", "10", 10, 0.2,
-		// 20));
-		// memory.addClassifier(new XCSObject("11", "11", 10, 0.2,
-		// 20));
 
 		// Hook zum Abspeichern der Classifier
 		if (!hookAdded) {
@@ -100,18 +69,23 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		// Beobachtung machen
 		String observation = observer.getObservationFromCurrentGameState(game);
 
-		System.out.println("Beobachtung: " + observation);
-		memory.printClassifier();
+		
+		//memory.printClassifier();
 
 		// Reward aus letzter Aktion berechnen
 		double reward = observer.getReward(game, timeDue);
+		//rewarder.giveRewardToActions(reward ,  0.0);
 		// System.out.println("Reward: "+ reward);
-
+		
+//		System.out.println("Last Reward: "+ reward);
+//		System.out.println("Beobachtung: " + observation);
 		// Beobachtung weiterverarbeiten
 		ArrayList<IStarCSObject> matchings = memory.getMatchings(observation);
 
 		ArrayList<IStarCSObject> actionSet = new ArrayList<IStarCSObject>();
 		ArrayList<IStarCSObject> matchingSetMinusActionSet = new ArrayList<IStarCSObject>();
+		
+		
 
 		// Berechnung des ActionSets
 		IStarCSObject classifierWithMaxPred = actionChooser.getActionSetFor(matchings, actionSet,
@@ -132,19 +106,24 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 			// Action wird zum Action Set und zum Matching Set hinzugefügt.
 			// nextDirection = nextPill(game.getCurPacManLoc(), game);
 
-			System.out.println("ActionSet war wohl leer");
+//			System.out.println("ActionSet war wohl leer");
 
 			IStarCSObject generatedClassifier = memory
-					.generateNewClassifierForObservation(observation);
+					.generateNewClassifierForObservation(observation, game.getPossiblePacManDirs(true));
 			nextDirection = actionChooser
 					.convertActionStringToDirectionInt(generatedClassifier
 							.getAction());
 			actionSet.add(generatedClassifier);
 			classifierWithMaxPred = generatedClassifier;
 		}
+		
+		//System.out.println("ActionSet");		
+//		for(int i = 0; i< 1; i++){
+//			System.out.println("Action: " + actionSet.get(i).getAction());
+//		}
 
-		System.out.println("Aktion, die jetzt gemacht wird: "
-				+ actionSet.get(0).getAction());
+//		System.out.println("Aktion, die jetzt gemacht wird: "
+//				+ actionSet.get(0).getAction());
 
 		// System.out.println("Größe des ActionSets: " + actionSet.size());
 
@@ -155,7 +134,9 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		for (int i = 0; i < actionSet.size(); i++) {
 			rewarder.addActionToBucket(actionSet.get(i));
 		}
+		//System.out.println("Aktion: "+ nextDirection);
 
+		observer.setPDir(nextDirection);
 		// Richtung wird zurückgegeben.
 		return nextDirection;
 	}

@@ -25,5 +25,7 @@ public interface IEnvironmentObserver {
 	 * @return Integer gibt den Reward an.
 	 */
 	public double getReward(Game game, long time);
+	
+	public void setPDir(int PDir);
 
 }
