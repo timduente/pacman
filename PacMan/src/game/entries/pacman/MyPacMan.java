@@ -36,7 +36,7 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 
 	public MyPacMan() {
 		super();
-		memory = new ActionConditionMemory(16000);
+		memory = new ActionConditionMemory(20000);
 		observer = new EnvironmentObserver();
 		actionChooser = new ActionChooser();
 		rewarder = new Rewarder(1);

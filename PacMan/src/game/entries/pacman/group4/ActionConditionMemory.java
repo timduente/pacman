@@ -12,7 +12,7 @@ public class ActionConditionMemory implements IMemory {
 	private static ArrayList<IStarCSObject> memory = new ArrayList<IStarCSObject>();
 	int maximumSize;
 
-	private static double SHARP = 0.1;
+	private static double SHARP = 0.01;
 
 	public ActionConditionMemory(int maximumSize) {
 		this.maximumSize = maximumSize;
