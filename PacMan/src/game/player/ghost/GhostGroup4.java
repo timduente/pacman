@@ -92,24 +92,27 @@ public class GhostGroup4 extends AbstractGhost {
 				system.removeClassifiersWithSmallerFitness(0);
 			}
 			
-			// performance da geister eh "nichts tun koennen"
+			// da geister eh "nichts tun koennen"
 			if(game.getLairTime(i) > 0) {
 				dirs[i] = -1;
 				continue;
 			}
 			
-			// previous reward
+			// always reward previous decisions
 			final int prevReward = observer.getReward(game);
 			system.reward(prevReward);
 			
-			// observe new situation
+			// observe new situation (--> toggles some data update)
 			final int classifierObservation = observer.getObservation(game);
 			
-			// new action selection
-			IAction classifierAction = system.getAction(classifierObservation);
 			
-			// put to data output
-			dirs[i] = classifierAction.getActionBits();
+			if(game.ghostRequiresAction(i)) {
+				// new action selection
+				IAction classifierAction = system.getAction(classifierObservation);
+				
+				// put to data output
+				dirs[i] = classifierAction.getActionBits();				
+			}
 		}
 
 		return dirs;
@@ -127,7 +130,7 @@ public class GhostGroup4 extends AbstractGhost {
 	}
 	
 	private boolean needPersistencyUpdate(Game g){
-		return g.getLevelTime() > 100 && g.getLevelTime() % 300 == 0;
+		return g.getLevelTime() > 100 && g.getLevelTime() % 500 == 0;
 	}
 	
 	

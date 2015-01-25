@@ -17,7 +17,7 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 
 	private static final int NUM_BITS_USED = 22;
 	private static final int REWARD_PER_PACMANLIVES = 60000;
-	private static final double REWARD_PER_DELTADISTANCE = 10;
+	private static final double REWARD_PER_DELTADISTANCE = 25;
 	
 	private static final double WILDC_SPAWNRATE_RANDOM_GENERATION = 0.1;
 	private static final double WILDCBIT_SPAWNRATE_GENETIC_GENERATION = 0.001;

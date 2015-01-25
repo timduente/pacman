@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class ZCSSystem implements IClassifierSystem {
 
-	static final int LEARNING_HISTORY_LENGTH = 40;
-	static final double LEARNING_SLOWDOWN_FACTOR = 0.85;
+	static final int LEARNING_HISTORY_LENGTH = 20;
+	static final double LEARNING_SLOWDOWN_FACTOR = 0.7;
 	
 	
 	ZCSDatabase database = new ZCSDatabase();
