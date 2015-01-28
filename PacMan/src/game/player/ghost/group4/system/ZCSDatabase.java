@@ -16,7 +16,7 @@ public class ZCSDatabase {
 	Map<Long, ZCSEntry> mp = new HashMap<Long, ZCSEntry>();
 	Stack<Long> tmpStack = new Stack<Long>();
 	
-	static int avrgFitness = 0;
+	float avrgFitness = 0;
 
 	public void add(ZCSEntry entry) {
 
@@ -24,7 +24,7 @@ public class ZCSDatabase {
 
 		// when classifier already exits --> update if fitness is better!
 		ZCSEntry current = mp.get(key);
-		if (current != null) {
+		if (current != null && current.getAction().getActionBits() == entry.getAction().getActionBits()) {
 
 			// update if better
 			if (entry.getFitness() > current.getFitness()) {
@@ -74,12 +74,13 @@ public class ZCSDatabase {
 
 	}
 
-	public void getMatches(int observationBits, List<ZCSEntry> dest) {
+	public float getMatches(int observationBits, List<ZCSEntry> dest) {
 
 		dest.clear();
 		
 		int tmp = 0;
 		final int count = mp.values().size();
+		float totalFitness = 0;
 
 		Iterator<ZCSEntry> coll = mp.values().iterator();
 		while (coll.hasNext()) {
@@ -87,14 +88,17 @@ public class ZCSDatabase {
 			tmp += e.getFitness();
 			if (e.observation.matches(observationBits)) {
 				dest.add(e);
+				totalFitness += e.getFitness();
 			}
 		}
 		
 		// keep track with some monitoring info
-		avrgFitness = (int)(tmp / (double) count);
+		avrgFitness = tmp / count;
+		
+		return totalFitness;
 	}
 	
-	public int getCurrentAverageFitness() {
+	public float getCurrentAverageFitness() {
 		return avrgFitness;
 	}
 }

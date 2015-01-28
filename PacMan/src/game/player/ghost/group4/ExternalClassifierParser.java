@@ -22,7 +22,7 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 	static final int FITNESS_INDEX = 3;
 
 	String filePath = null;
-	boolean IS_BINARY_STRING_MODE = false;
+	boolean IS_BINARY_STRING_MODE = false; // TODO --> currently not working with "float" as fitness type
 
 	public ExternalClassifierParser(String pfilePath) {
 		filePath = pfilePath;
@@ -60,9 +60,9 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 					continue; // errornous line
 				}
 
-				// parse data and convert to classifier
-				int[] iParams = new int[params.length];
-				for (int i = 0; i < params.length; ++i) {
+				// parse integer data and convert to classifier
+				int[] iParams = new int[params.length-1];
+				for (int i = 0; i < params.length-1; ++i) {
 
 					int parsed = 0;
 
@@ -75,9 +75,13 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 
 					iParams[i] = parsed;
 				}
+				
+				// fitness is float type 
+				float fitness = Float.parseFloat(params[FITNESS_INDEX]);
+				
 
 				try {
-					ZCSEntry entry = makeClassifierFromInputData(iParams);
+					ZCSEntry entry = makeClassifierFromInputData(iParams, fitness);
 					result.add(entry);
 					ctr++;
 				} catch (Exception ex) {
@@ -100,10 +104,10 @@ public class ExternalClassifierParser implements IClassifierDataSource {
 		return result;
 	}
 
-	private ZCSEntry makeClassifierFromInputData(int[] params) {
+	private ZCSEntry makeClassifierFromInputData(int[] params, float fitness) {
 
 		ZCSObservation obsRightEscape = new ZCSObservation(params[OBSERVATION_INDEX], params[WILDCARD_INDEX]);
-		return new ZCSEntry(obsRightEscape, new GhostAction(params[ACTION_INDEX]), params[FITNESS_INDEX]);
+		return new ZCSEntry(obsRightEscape, new GhostAction(params[ACTION_INDEX]), fitness);
 	}
 
 	private String classifierToStringLine(ZCSEntry entry, String[] params, boolean stringMode) {

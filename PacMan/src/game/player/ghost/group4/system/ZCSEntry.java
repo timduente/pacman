@@ -6,20 +6,20 @@ import game.player.ghost.group4.IObservation;
 public class ZCSEntry {
 	IObservation observation;
 	IAction action;
-	int fitness;
+	float fitness;
 	
-	public ZCSEntry(IObservation o, IAction a, int f)
+	public ZCSEntry(IObservation o, IAction a, float f)
 	{
 		observation = o;
 		action = a;
 		fitness = f;
 	}
 	
-	public int getFitness() {
+	public float getFitness() {
 		return fitness;
 	}
 
-	public void setFitness(int fitness) {
+	public void setFitness(float fitness) {
 		this.fitness = fitness;
 	}
 

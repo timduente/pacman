@@ -16,11 +16,11 @@ import game.player.ghost.group4.system.ZCSObservation;
 public class GhostObserver implements IObserverSource, IClassifierDataSource, IClassifierGenerator {
 
 	private static final int NUM_BITS_USED = 22;
-	private static final int REWARD_PER_PACMANLIVES = 60000;
-	private static final double REWARD_PER_DELTADISTANCE = 25;
+	private static final int REWARD_PER_PACMANLIVES = 6000;
+	private static final double REWARD_PER_DELTADISTANCE = 30;
 	
 	private static final double WILDC_SPAWNRATE_RANDOM_GENERATION = 0.1;
-	private static final double WILDCBIT_SPAWNRATE_GENETIC_GENERATION = 0.001;
+	private static final double WILDCBIT_SPAWNRATE_GENETIC_GENERATION = 0.002;
 	
 	
 	boolean[] bitmap = new boolean[NUM_BITS_USED];
@@ -367,7 +367,7 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 	static final int[] RND_ACTIONS = { MOVE_UP,MOVE_RIGHT,MOVE_DOWN,MOVE_LEFT };
 	
 	@Override
-	public ZCSEntry generateRandomClassifierForObservation(int observation, int fitness) {
+	public ZCSEntry generateRandomClassifierForObservation(int observation, float fitness) {
 		
 		ZCSObservation obs = new ZCSObservation(observation, 0);// wildcard declaring everything significant
 		//obs.setWldCard(~observation); // ueberall, wo in der observation eine 0, wird zu wildcard -> also unwichtige bits
@@ -385,16 +385,25 @@ public class GhostObserver implements IObserverSource, IClassifierDataSource, IC
 	@Override
 	public ZCSEntry generateGeneticClassifier(int observation, ZCSEntry a, ZCSEntry b) {
 		
-		final int wildcardbits = a.getObservation().getWildcards() ^ b.getObservation().getWildcards();
-		ZCSObservation obs = new ZCSObservation(observation, wildcardbits);
-	
+		//final int wildcardbits = a.getObservation().getWildcards() ^ b.getObservation().getWildcards();
 		
-		if (rnd.nextDouble() < WILDCBIT_SPAWNRATE_GENETIC_GENERATION) {
-			obs.setWldCard((rnd.nextInt() & rnd.nextInt()) ^ obs.getWildcards());
+		int msk = 1;
+		int wildcardbitsNEW = 0;
+		for(int i=0;i<NUM_BITS_USED;++i) {
+			final int factor = rnd.nextDouble() < WILDCBIT_SPAWNRATE_GENETIC_GENERATION ? 0xFFFFFFFF : 0x00000000;
+			
+			wildcardbitsNEW = wildcardbitsNEW | factor & msk;
+			msk = msk << 1;
 		}
 		
+		ZCSObservation obs = new ZCSObservation(observation, wildcardbitsNEW);
+			
+//		if (rnd.nextDouble() < WILDCBIT_SPAWNRATE_GENETIC_GENERATION) {
+//			obs.setWldCard((rnd.nextInt() & rnd.nextInt()) ^ obs.getWildcards());
+//		}
 		
-		final int fitnessAvrg = (int)((a.getFitness() + b.getFitness()) * 0.5);
+		
+		final float fitnessAvrg = (a.getFitness() + b.getFitness()) * 0.5f;
 		
 		IAction ac = new GhostAction(a.getAction().getActionBits() ^ b.getAction().getActionBits());
 		return new ZCSEntry(obs, ac, fitnessAvrg);

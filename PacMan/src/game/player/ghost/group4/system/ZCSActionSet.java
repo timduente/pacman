@@ -25,7 +25,11 @@ public class ZCSActionSet {
 		return null;
 	}
 	
-	public void reward(int deltaReward) {
+	public int size() {
+		return actions.size();
+	}
+	
+	public void reward(float deltaReward) {
 		for(ZCSEntry e : actions) {
 			e.setFitness(e.getFitness() + deltaReward);
 		}
@@ -33,7 +37,7 @@ public class ZCSActionSet {
 	
 	public IAction getHighestFitnessAction() {
 		
-		int curmaxFitness = Integer.MIN_VALUE;
+		float curmaxFitness = Float.MIN_VALUE;
 		IAction erg = null;
 		
 		for(ZCSEntry e : actions) {
