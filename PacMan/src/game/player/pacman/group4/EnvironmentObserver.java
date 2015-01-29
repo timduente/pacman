@@ -1,8 +1,7 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 import game.core.G;
 import game.core.Game;
-import game.core.Game.DM;
 
 public class EnvironmentObserver implements IEnvironmentObserver {
 
@@ -14,7 +13,7 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 	int[] orderedGhosts = new int[G.NUM_GHOSTS];
 	int[] orderedDirectionToGhost = new int[G.NUM_GHOSTS];
 
-	private static int GHOST_DISTANCE_CRITERIUM = 9;
+	private static int GHOST_DISTANCE_CRITERIUM = 11;
 
 	private char appendBinary(boolean expression) {
 		return expression ? '1' : '0';
@@ -61,16 +60,9 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 			observation.append(directionToBinary(directionOfNextPill));
 		}else{
 			observation.append(directionToBinary(directionOfNextPowerPill));
+			directionOfNextPill = directionOfNextPowerPill;
 		}
 		
-		// System.out.println("Beobachtung: " +
-		// directionToBinary(directionOfNextPill));
-
-		// Richtung in der die nächste PowerPille liegt: 3bit 000 oben, 001
-		// rechts, 010 unten, 011 links, 100 keine PowerPille mehr da
-
-
-		// System.out.println("Richtung PP:"+ directionOfNextPowerPill);
 		if (directionOfNextPowerPill != -1)
 			observation.append(directionToBinary(directionOfNextPowerPill));
 		else {
@@ -106,7 +98,7 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 			}
 		}
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
 			int min = 100000;
 			// System.out.println("Distance: " + )
 			int index = -1;
@@ -138,8 +130,6 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 
 	int lastPillCount;
 	int lastPowerPillCount;
-	int lastScore;
-	int lastLives = 3;
 	int lastPacmanNode;
 	int lastPacmanDirection;
 	int lastDistance;
@@ -147,19 +137,12 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 	@Override
 	public double getReward(Game game, long time) {
 		double reward = 0;
-
 		int actualActivePillCount = game.getPillIndicesActive().length;
 		int actualActivePowerPillCount = game.getPowerPillIndicesActive().length;
-		int actualScore = game.getScore();
-		int actualLives = game.getLivesRemaining();
 		int actualPacmanNode = game.getCurPacManLoc();
 		int actualPacmanDir = game.getCurPacManDir();
-
-		if (actualScore == 0) {
-			lastScore = 0;
-		}
-
 		
+		boolean noNextPillBonus = true;
 
 		int ghostDistance = game.getGhostPath(orderedGhosts[0], lastPacmanNode).length;
 		// System.out.println("GeistDist: " + ghostDistance);
@@ -170,6 +153,7 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 				// System.out.println("PacmanDir " + actualPacmanDir +
 				// " DirToGhost: " + orderedDirectionToGhost[0]);
 				reward = reward - 30;
+				noNextPillBonus = false;
 			} else if (!game.isEdible(orderedGhosts[0])
 					&& actualPacmanDir != orderedDirectionToGhost[0]
 					&& game.getCurPacManDir() != 4) {
@@ -188,14 +172,35 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 							.getCurPacManDir() == 4)) {
 				// System.out.println("PacmanDir " + actualPacmanDir +
 				// " DirToGhost: " + orderedDirectionToGhost[0]);
-				reward = reward - 30;
+				reward = reward - 25;
+				noNextPillBonus = false;
 			} else if (!game.isEdible(orderedGhosts[1])
 					&& actualPacmanDir != orderedDirectionToGhost[1]
 					&& game.getCurPacManDir() != 4) {
-				reward = reward + 15;
+				reward = reward + 10;
 			} else if (game.isEdible(orderedGhosts[1])
 					&& actualPacmanDir == orderedDirectionToGhost[1]) {
-				reward = reward + 15;
+				reward = reward + 10;
+			} else {
+
+			}
+		}	
+		int ghostDistance3 = game.getGhostPath(orderedGhosts[2], lastPacmanNode).length;
+		if (ghostDistance3 < GHOST_DISTANCE_CRITERIUM && ghostDistance3 != 0) {
+			if (!game.isEdible(orderedGhosts[2])
+					&& (actualPacmanDir == orderedDirectionToGhost[2] || game
+							.getCurPacManDir() == 4)) {
+				// System.out.println("PacmanDir " + actualPacmanDir +
+				// " DirToGhost: " + orderedDirectionToGhost[0]);
+				reward = reward - 20;
+				noNextPillBonus = false;
+			} else if (!game.isEdible(orderedGhosts[2])
+					&& actualPacmanDir != orderedDirectionToGhost[2]
+					&& game.getCurPacManDir() != 4) {
+				reward = reward + 5;
+			} else if (game.isEdible(orderedGhosts[2])
+					&& actualPacmanDir == orderedDirectionToGhost[2]) {
+				reward = reward + 5;
 			} else {
 
 			}
@@ -204,16 +209,12 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		// Pacman dreht sich um. Ständiger Richtungswechsel ist unproduktiv
 		if (lastPacmanDirection == game.getReverse(actualPacmanDir)) {
 			reward = reward - 15;
-//			if (lastPacmanNode == actualPacmanNode) {
-//				System.out.println("DER FALL TRITT AUF");
-//				reward = reward - 8;
-//			}
 		} else {
 			reward = reward + 2;
 		}
 
 		if (lastPillCount == actualActivePillCount
-				&& lastPowerPillCount == actualActivePowerPillCount) {
+				&& lastPowerPillCount == actualActivePowerPillCount && noNextPillBonus) {
 			if (actualPacmanDir == directionOfNextPill
 					&& lastPacmanDirection != game.getReverse(actualPacmanDir))
 				reward = reward + 15;
@@ -223,7 +224,7 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		}
 
 		if (actualActivePillCount < lastPillCount
-				&& actualPacmanDir == directionOfNextPill) {
+				&& actualPacmanDir == directionOfNextPill && noNextPillBonus) {
 			reward = reward + 15;
 		}
 
@@ -232,7 +233,6 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 		}
 
 		if (actualPacmanDir != lastRealPacManDir) {
-//			System.out.println("PacManDir = : " + actualPacmanDir + "!= " + lastRealPacManDir +"= gewollte Aktion");
 			if (reward > 0)
 				reward = -2;
 		} else {
@@ -241,8 +241,6 @@ public class EnvironmentObserver implements IEnvironmentObserver {
 
 		lastPillCount = actualActivePillCount;
 		lastPowerPillCount = actualActivePowerPillCount;
-		lastScore = actualScore;
-		lastLives = actualLives;
 		lastPacmanNode = actualPacmanNode;
 		lastPacmanDirection = actualPacmanDir;
 

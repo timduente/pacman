@@ -2,17 +2,17 @@ package game.entries.pacman;
 
 import game.controllers.PacManController;
 import game.core.Game;
-import game.entries.pacman.group4.ActionChooser;
-import game.entries.pacman.group4.ActionConditionMemory;
-import game.entries.pacman.group4.EnvironmentObserver;
-import game.entries.pacman.group4.IActionChooser;
-import game.entries.pacman.group4.IEnvironmentObserver;
-import game.entries.pacman.group4.IMemory;
-import game.entries.pacman.group4.IRewarder;
-import game.entries.pacman.group4.IStarCSObject;
-import game.entries.pacman.group4.Rewarder;
-import game.entries.pacman.group4.Saver;
-import game.entries.pacman.group4.XCSObject;
+import game.player.pacman.group4.ActionChooser;
+import game.player.pacman.group4.ActionConditionMemory;
+import game.player.pacman.group4.EnvironmentObserver;
+import game.player.pacman.group4.IActionChooser;
+import game.player.pacman.group4.IEnvironmentObserver;
+import game.player.pacman.group4.IMemory;
+import game.player.pacman.group4.IRewarder;
+import game.player.pacman.group4.IStarCSObject;
+import game.player.pacman.group4.Rewarder;
+import game.player.pacman.group4.Saver;
+import game.player.pacman.group4.XCSObject;
 import gui.AbstractPlayer;
 
 import java.io.IOException;
@@ -58,6 +58,16 @@ public class MyPacMan extends AbstractPlayer implements PacManController {
 		}
 		saver.setMemory(memory);
 
+	}
+	
+	public void write(){
+		
+		try {
+			memory.writeMemoryToFile("test.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

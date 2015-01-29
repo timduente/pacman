@@ -1,4 +1,4 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 import game.core.Game;
 

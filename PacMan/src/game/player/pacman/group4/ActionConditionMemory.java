@@ -1,4 +1,4 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,12 +7,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ActionConditionMemory implements IMemory {
 	private static ArrayList<IStarCSObject> memory = new ArrayList<IStarCSObject>();
+	private static IStarCSComperator comparator = new IStarCSComperator();
 	int maximumSize;
-
-	private static double SHARP = 0.01;
 
 	public ActionConditionMemory(int maximumSize) {
 		this.maximumSize = maximumSize;
@@ -25,7 +25,6 @@ public class ActionConditionMemory implements IMemory {
 
 		// Anzahl der Objekt wird geschrieben.
 		out.writeInt(memory.size());
-
 		for (int i = 0; i < memory.size(); i++) {
 			out.writeObject(memory.get(i));
 		}
@@ -47,14 +46,25 @@ public class ActionConditionMemory implements IMemory {
 		ObjectInputStream in = new ObjectInputStream(fileIn);
 
 		int objectCount = in.readInt();
+		System.out.println("ClassifierToRead: " + objectCount);
+
+		int count = 0;
 
 		for (int i = 0; i < objectCount; i++) {
 			try {
+
+				// game.entries.pacman.group4.IStarCSObject obj1 =
+				// (game.entries.pacman.group4.IStarCSObject) in.readObject();
+				//
+				// XCSObject obj = new XCSObject(obj1.getCondition(),
+				// obj1.getAction(), obj1.getPrediction(),
+				// obj1.getPredictionError(), obj1.getFitness());
 
 				IStarCSObject obj = (IStarCSObject) in.readObject();
 
 				if (!Double.isNaN(obj.getFitness())) {
 					memory.add(obj);
+					count++;
 				}
 
 			} catch (ClassNotFoundException e) {
@@ -63,6 +73,9 @@ public class ActionConditionMemory implements IMemory {
 				break;
 			}
 		}
+		System.out.println("Classifier added: " + count);
+		Collections.sort(memory, comparator);
+		this.printBestClassifier();
 		in.close();
 		fileIn.close();
 	}
@@ -70,122 +83,82 @@ public class ActionConditionMemory implements IMemory {
 	@Override
 	public ArrayList<IStarCSObject> getMatchings(String observation) {
 		ArrayList<IStarCSObject> matchings = new ArrayList<IStarCSObject>();
-		for (int i = memory.size() - 1; i >= 0; i--) {
-			IStarCSObject classifier = memory.get(i).compareToGivenObservation(
-					observation);
+		IStarCSObject classifier = new XCSObject(observation, "", 0.0, 0.0, 0.0);
+		int index = Collections.binarySearch(memory, classifier, comparator);
 
-			if (classifier != null) {
+		if (index < 0) {
+			return matchings;
+		}
+		int indexToSearch = Math.max(0, index - 4);
+		int endSearch = Math.min(memory.size(), index + 4);
+		for (int i = indexToSearch; i < endSearch; i++) {
+			classifier = memory.get(i);
+			if (classifier.compareToGivenObservation(observation) != null) {
 				matchings.add(classifier);
-				// System.out.println("Matching Classifier: " + classifier);
 			}
-
 		}
 		return matchings;
 	}
 
 	@Override
 	public void addClassifier(IStarCSObject classifier) {
+		int index = Collections.binarySearch(memory, classifier, comparator);
 
-		if (memory.contains(classifier)) {
-			for (int i = memory.size() - 1; i >= 0; i--) {
-				if (classifier.equals(memory.get(i))) {				
+		if (index < 0) {
+			if (memory.size() > maximumSize) {
+				System.out.println("Memory is Full");
+				double fitness = calculatePopulationAverageFitness();
+
+				System.out.println("Size before: " + memory.size());
+				for (int i = memory.size() - 1; i > 0; i--) {
+					if (memory.get(i).getFitness() < fitness * 0.5) {
+						memory.remove(i);
+					}
+				}
+				System.out.println("Size after: " + memory.size());
+			} else {
+				int addIndex = Collections.binarySearch(memory, classifier,
+						comparator);
+				if (addIndex >= 0)
+					memory.add(addIndex, classifier);
+				else
+					memory.add(-addIndex - 1, classifier);
+			}
+		}else{
+			int indexToSearch = Math.max(0, index - 4);
+			int endSearch = Math.min(memory.size(), indexToSearch + 10);
+			
+			for(int i = indexToSearch; i< endSearch; i++){
+				if (classifier.equals(memory.get(i))) {
 					memory.remove(i);
-					memory.add(classifier);
+					memory.add(i, classifier);
 				}
 			}
-		} else if (memory.size() > maximumSize) {
-			System.out.println("Memory is Full");
-			double fitness = calculatePopulationAverageFitness();
-
-			System.out.println("Size before: " + memory.size());
-			for (int i = memory.size() - 1; i > 0; i--) {
-				if (memory.get(i).getFitness() < fitness * 0.5) {
-					memory.remove(i);
-				}
-			}
-			System.out.println("Size after: " + memory.size());
-		} else {
-			memory.add(classifier);
+			
+		
+			
 		}
-
-	}
-
-	private void generateGeneticClassifier(String observation) {
-		// System.out.println("Generate new Classifier");
-
-		// int[] indicies = getClassifierIndiciesWithHighestFitness();
-		// IStarCSObject fitest = memory.get(indicies[0]);
-		// IStarCSObject secondFitest = memory.get(indicies[1]);
-		//
-		// String action1 = fitest.getAction();
-		// String action2 = fitest.getAction();
-		//
-		// String mutatedAction1 = new String();
-		// String mutatedAction2 = new String();
-		//
-		// for (int i = 0; i < action1.length(); i++) {
-		// if (Math.random() < 0.001) {
-		// // Mutation Bit kippt um:
-		// mutatedAction1 = mutatedAction1
-		// + ((action1.charAt(i) == '1') ? '0' : '1');
-		// }
-		// if (Math.random() < 0.001) {
-		// // Mutation Bit kippt um:
-		// mutatedAction2 = mutatedAction2
-		// + (action2.charAt(i) == '1' ? '0' : '1');
-		// }
-		// }
+//		for(int i=0; i< memory.size()-1; i++){
+//			if(comparator.compare(memory.get(i), memory.get(i+1)) > 0){
+//				System.err.println("UNSORTED");
+//			}
+//		}
+		
 	}
 
 	@Override
-	public IStarCSObject generateNewClassifierForObservation(String observation, int[] possibleDirections) {
+	public IStarCSObject generateNewClassifierForObservation(
+			String observation, int[] possibleDirections) {
 		String condition = new String();
 		String action = new String();
 		double fitness = calculatePopulationAverageFitness();
-
-		for (int i = 0; i < observation.length(); i++) {
-			if (Math.random() < SHARP && observation.charAt(i) != '|' && i > 3) {
-				condition = condition + '#';
-			} else {
-				condition = condition + observation.charAt(i);
-			}
-		}
-
-		action = EnvironmentObserver.binaryDirections[(int) (Math.random()
-				* EnvironmentObserver.binaryDirections.length ) ];
-//		action = EnvironmentObserver.binaryDirections[possibleDirections[(int)(Math.random() * possibleDirections.length)]];
+		condition = observation;
+		action = EnvironmentObserver.binaryDirections[(int) (Math.random() * EnvironmentObserver.binaryDirections.length)];
 		IStarCSObject obj = new XCSObject(condition, action,
 				calculatePopulationAveragePrediction(),
 				calculatePopulationAveragePredictionError(), fitness);
 		this.addClassifier(obj);
 		return obj;
-	}
-
-	private IStarCSObject getClassifierWithHighestFitness() {
-		double maximumFitness = 0.0;
-		int index = -1;
-		for (int i = 0; i < memory.size(); i++) {
-			if (maximumFitness <= memory.get(i).getFitness()) {
-				maximumFitness = memory.get(i).getFitness();
-				index = i;
-			}
-		}
-		return memory.get(index);
-	}
-
-	private int[] getClassifierIndiciesWithHighestFitness() {
-		double maximumFitness = 0.0;
-		int[] indicies = new int[2];
-		indicies[0] = -1;
-		indicies[1] = 0;
-		for (int i = 0; i < memory.size(); i++) {
-			if (maximumFitness <= memory.get(i).getFitness()) {
-				maximumFitness = memory.get(i).getFitness();
-				indicies[1] = indicies[0];
-				indicies[0] = i;
-			}
-		}
-		return indicies;
 	}
 
 	private double calculatePopulationAverageFitness() {
@@ -230,14 +203,13 @@ public class ActionConditionMemory implements IMemory {
 
 	@Override
 	public void printClassifier() {
-		this.printBestClassifier();
-//		for (int i = 0; i < memory.size(); i++) {
-//			System.out.println("Classifier: " + memory.get(i));
-//		}
+		for (int i = 0; i < memory.size(); i++) {
+			System.out.println("Classifier: " + memory.get(i));
+		}
 
 	}
 
-//	@Override
+	// @Override
 	public void printBestClassifier() {
 		double average = this.calculatePopulationAveragePrediction();
 		for (int i = 0; i < memory.size(); i++) {

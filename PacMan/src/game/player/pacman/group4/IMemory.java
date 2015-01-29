@@ -1,4 +1,4 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,9 +37,10 @@ public interface IMemory {
 	 *            Classifier, der hinzugefügt wird.
 	 */
 	public void addClassifier(IStarCSObject classifier);
-	
-	public IStarCSObject generateNewClassifierForObservation(String observation, int[] possibleDirections);
-	
+
+	public IStarCSObject generateNewClassifierForObservation(
+			String observation, int[] possibleDirections);
+
 	public void printClassifier();
 
 	/*

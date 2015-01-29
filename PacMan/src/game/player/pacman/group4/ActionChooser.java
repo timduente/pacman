@@ -1,4 +1,4 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 import java.util.ArrayList;
 
@@ -9,8 +9,6 @@ public class ActionChooser implements IActionChooser {
 			ArrayList<IStarCSObject> actionSet,
 			ArrayList<IStarCSObject> matchingSetMinusActionSet) {
 
-		double averagePrediction = getAveragePrediction(matchingSet);
-		double minPredictionError = 1.0;
 		double maxPrediction =  0.0;//Math.abs(averagePrediction); // Möchte gerne
 															// positiven Reward
 															// haben.
@@ -19,10 +17,8 @@ public class ActionChooser implements IActionChooser {
 		for (int i = 0; i < matchingSet.size(); i++) {
 			classifier = matchingSet.get(i);
 			double elementPrediction = classifier.getPrediction() ;
-			double elementPredictionError = classifier.getPredictionError();
 			if (elementPrediction > maxPrediction) {
 				maxPrediction = elementPrediction;
-				minPredictionError = elementPredictionError;
 				indexToAdd = i;
 			}
 		}
@@ -52,19 +48,6 @@ public class ActionChooser implements IActionChooser {
 		}
 
 		return sameActions;
-	}
-
-	private double getAveragePrediction(ArrayList<IStarCSObject> classifierList) {
-		double predictionSum = 0;
-		for (int i = 0; i < classifierList.size(); i++) {
-			predictionSum = predictionSum
-					+ classifierList.get(i).getPrediction();
-		}
-
-		if (classifierList.size() > 0) {
-			return predictionSum / classifierList.size();
-		} else
-			return 0.0;
 	}
 
 	@Override

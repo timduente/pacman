@@ -1,4 +1,4 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 public class XCSObject implements IStarCSObject {
 	String condition;
@@ -17,15 +17,15 @@ public class XCSObject implements IStarCSObject {
 		this.prediction = prediction;
 		this.predictionError = predictionError;
 		this.fitness = fitness;
-		int count = 0;
+//		int count = 0;
 		
-		for(int i = 0; i< condition.length(); i++){
-			if(condition.charAt(i)== '#'){
-				i++;
-			}
-		}
+//		for(int i = 0; i< condition.length(); i++){
+//			if(condition.charAt(i)== '#'){
+//				i++;
+//			}
+//		}
 		
-		specifity = (condition.length()-count)/condition.length();
+//		specifity = (condition.length()-count)/condition.length();
 	}
 	
 	
@@ -55,10 +55,7 @@ public class XCSObject implements IStarCSObject {
 		}
 
 		for (int i = 0; i < observation.length(); i++) {
-			if (this.condition.charAt(i) != '#' && this.condition.charAt(i) != observation.charAt(i)
-					/*this.condition.charAt(i) == '0' && observation.charAt(i) == '1'
-					|| this.condition.charAt(i) == '1'
-					&& observation.charAt(i) == '0' || this.condition.charAt(i) == '0' && observation.charAt(i) == '|' || this.condition.charAt(i) == '1' && observation.charAt(i) == '|'*/) {
+			if (this.condition.charAt(i) != '#' && this.condition.charAt(i) != observation.charAt(i)){
 				return null;
 			}
 		}
@@ -72,18 +69,13 @@ public class XCSObject implements IStarCSObject {
 
 	@Override
 	public void update(double reward, double learningRate) {
-		
-		if(reward != reward){
-			System.out.println("Aua");
-			(new int[3])[3] = 1;
-		}
 
 		prediction = prediction + learningRate * (reward - prediction);
-		if(prediction > 2000){
-			prediction = 2000;
-		}else if(prediction < -2000){
-			prediction = -2000;
-		}
+//		if(prediction > 2000){
+//			prediction = 2000;
+//		}else if(prediction < -2000){
+//			prediction = -2000;
+//		}
 		predictionError = predictionError + learningRate
 				* (Math.abs(reward - prediction) - predictionError);
 		fitness = fitness + learningRate
@@ -113,14 +105,10 @@ public class XCSObject implements IStarCSObject {
 				+ predictionError + "@" + fitness;
 	}
 
-
-
 	@Override
 	public double getSpecifity() {
 		return specifity;
 	}
-
-
 
 	@Override
 	public double getPredictionError() {

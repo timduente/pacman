@@ -1,4 +1,4 @@
-package game.entries.pacman.group4;
+package game.player.pacman.group4;
 
 import java.util.ArrayList;
 
@@ -13,14 +13,14 @@ public class Rewarder implements IRewarder {
 	private final static double TAX = 0.05;
 	private final static double lEARNING_RATE = 0.35;
 	private final static double DISCOUNT_RATE = 0.71;
-	
+
 	ArrayList<ArrayList<IStarCSObject>> buckets;
 	int bucketCount;
-	
-	public Rewarder(int bucketCount){
+
+	public Rewarder(int bucketCount) {
 		buckets = new ArrayList<ArrayList<IStarCSObject>>(bucketCount);
 		this.bucketCount = bucketCount;
-		for(int i = 0; i< bucketCount; i++){
+		for (int i = 0; i < bucketCount; i++) {
 			buckets.add(new ArrayList<IStarCSObject>());
 		}
 	}
@@ -35,17 +35,16 @@ public class Rewarder implements IRewarder {
 	public void giveRewardToActions(double reward, double maximumPrediction) {
 		reward = reward + DISCOUNT_RATE * maximumPrediction;
 		for (int i = 0; i < buckets.size(); i++) {
-			giveRewardToActionList(reward, buckets.get(i) );
+			giveRewardToActionList(reward, buckets.get(i));
 			reward = reward * DISCOUNT_RATE;
-//			if(reward < 0){
-//				break;
-//			}
 		}
 	}
-	
-	private void giveRewardToActionList(double reward, ArrayList<IStarCSObject> list){
+
+	private void giveRewardToActionList(double reward,
+			ArrayList<IStarCSObject> list) {
+		double dividedReward = reward / list.size();
 		for (int i = 0; i < list.size(); i++) {
-			list.get(i).update(reward /list.size(), lEARNING_RATE);
+			list.get(i).update(dividedReward, lEARNING_RATE);
 		}
 	}
 
@@ -59,7 +58,8 @@ public class Rewarder implements IRewarder {
 
 	@Override
 	public void moveBuckets() {
-		buckets.remove(bucketCount -1);
-		buckets.add(0,new ArrayList<IStarCSObject>());
+		ArrayList<IStarCSObject> list = buckets.remove(bucketCount - 1);
+		list.clear();
+		buckets.add(0, list);
 	}
 }
