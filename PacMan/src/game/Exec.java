@@ -35,7 +35,7 @@ public class Exec {
 		PacmanGroup4 p4 = new PacmanGroup4();
 		 
 		 exec.runExperiment(p4,new
-				 AttractRepelGhosts(), 100);
+				 AttractRepelGhosts(), 1000);
 		 p4.write();
 //		 exec.runExperiment(p4,new
 //				 Legacy(), 10000);

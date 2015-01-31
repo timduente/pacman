@@ -46,20 +46,12 @@ public class ActionConditionMemory implements IMemory {
 		ObjectInputStream in = new ObjectInputStream(fileIn);
 
 		int objectCount = in.readInt();
-		System.out.println("ClassifierToRead: " + objectCount);
+		//System.out.println("ClassifierToRead: " + objectCount);
 
 		int count = 0;
 
 		for (int i = 0; i < objectCount; i++) {
 			try {
-
-				// game.entries.pacman.group4.IStarCSObject obj1 =
-				// (game.entries.pacman.group4.IStarCSObject) in.readObject();
-				//
-				// XCSObject obj = new XCSObject(obj1.getCondition(),
-				// obj1.getAction(), obj1.getPrediction(),
-				// obj1.getPredictionError(), obj1.getFitness());
-
 				IStarCSObject obj = (IStarCSObject) in.readObject();
 
 				if (!Double.isNaN(obj.getFitness())) {
@@ -73,9 +65,8 @@ public class ActionConditionMemory implements IMemory {
 				break;
 			}
 		}
-		System.out.println("Classifier added: " + count);
+		//System.out.println("Classifier added: " + count);
 		Collections.sort(memory, comparator);
-		this.printBestClassifier();
 		in.close();
 		fileIn.close();
 	}

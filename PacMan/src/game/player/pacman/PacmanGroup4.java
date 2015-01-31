@@ -28,7 +28,7 @@ public class PacmanGroup4 extends AbstractPlayer{
 
 	public PacmanGroup4() {
 		super();
-		memory = new ActionConditionMemory(9000);
+		memory = new ActionConditionMemory(10000);
 		observer = new EnvironmentObserver();
 		actionChooser = new ActionChooser();
 		rewarder = new Rewarder(1);
@@ -36,7 +36,7 @@ public class PacmanGroup4 extends AbstractPlayer{
 
 		try {
 
-			memory.readMemoryFromFile("test.txt");
+			memory.readMemoryFromFile("Group4DataForLevelX.txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

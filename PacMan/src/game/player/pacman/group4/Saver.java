@@ -15,7 +15,7 @@ public class Saver extends Thread{
 	public void run(){
 		try {
 			System.out.println("Write memory Down!");
-			memory.writeMemoryToFile("test.txt");
+			memory.writeMemoryToFile("Group4DataForLevelX.txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
